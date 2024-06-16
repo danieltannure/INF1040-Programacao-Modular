@@ -1,3 +1,6 @@
 [submodule "mensagens"]
 	path = mensagens
 	url = https://github.com/bathwaterpizza/mensagens
+[submodule "cadastro"]
+	path = cadastro
+	url = https://github.com/bathwaterpizza/cadastro
