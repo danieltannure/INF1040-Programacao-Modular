@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 #bibliotecas para montar o calendário
 from tkinter import ttk
 import calendar
+#módulos
+from .mensagens import *
 
 # Variáveis globais de registro da sessão
 #Globais Aluno
@@ -18,6 +20,8 @@ lista_gabarito_montagem=[]
 #Globais Admin
 lista_cursos_formacao=[]
 lista_cursos_prequisito=[]
+lista_cursos_aptos=[]
+lista_filiais_aptas=[]
 #Globais de data
 ano_atual = datetime.now().year
 mes_atual = datetime.now().month
@@ -166,7 +170,7 @@ def show_tela_principal_admin():
     botao_cadastros.grid(row=1, rowspan=2, column=4,padx=10, pady=10)
 
     botao_levantamentos = tk.Button(root,height=5, text="Mostrar Levantamentos", command=show_tela_levantamentos_admin)
-    botao_levantamentos.grid(row=1, rowspan=2, column=4,padx=10, pady=10)
+    botao_levantamentos.grid(row=1, rowspan=2, column=5,padx=10, pady=10)
 
 
     botao_logout = tk.Button(root, text="Logout", command=show_tela_login)
@@ -690,7 +694,7 @@ def show_tela_cadastro_admin():
     for widget in root.winfo_children():
         widget.destroy()
 
-    label_media= tk.Label(root, text=f"Media Avaliações")
+    label_media= tk.Label(root, text=f"Criar Cadastro (Professores)")
     label_media.grid(row=0,column=0,padx=10,pady=10)
 
     label_usuario= tk.Label(root,text="Novo Usuario:")
@@ -700,46 +704,105 @@ def show_tela_cadastro_admin():
     entrada_usuario.grid(row=1,column=1,padx=10,pady=10)
 
     label_senha=tk.Label(root,text="Nova Senha:")
-    label_media.grid(row=2,column=0,padx=10,pady=10)
+    label_senha.grid(row=2,column=0,padx=10,pady=10)
 
     entrada_senha= tk.Entry(root,show="*")
     entrada_senha.grid(row=2,column=1,padx=10,pady=10)
     #WARNING: so cadastros de PROFESSORES podem ser criados
-    botao_voltar = tk.Button(root, text="Criar Cadastro", command= lambda: send_cria_cadastro_admin(entrada_usuario.get(),entrada_senha.get()))
-    botao_voltar.grid(row=3,column=0,padx=10,pady=10)
 
+    #os cursos devem ser puxadas pelo módulo cadastro via curso.get_cursos()
+
+    #limpa as listas para receberem os cursos e filiais que o professor que está sendo criado pode lecionar/estar
+    global lista_cursos_aptos,lista_filiais_aptas
+    lista_cursos_aptos=[]
+    lista_filiais_aptas=[]
+
+    cursos = ["(Selecione um Curso)", "Curso1", "Curso2","Curso3","Curso4","Curso5"]
+    cursos_var = tk.StringVar(root)
+    cursos_var.set(cursos[0])  # Definir valor padrão como vazio
+
+    label_cursos=tk.Label(root,text="Cursos Aptos:")
+    label_cursos.grid(row=3,column=0,padx=10,pady=10)
+
+    menu_cursos = tk.OptionMenu(root, cursos_var, *cursos)
+    menu_cursos.grid(row=3, column=1, padx=10, pady=10)
+
+    botao_adicionar_curso = tk.Button(root, text="Adicionar", command= lambda: send_append_curso_prof(cursos_var.get()))
+    botao_adicionar_curso.grid(row=4,column=1,padx=10,pady=10)
+
+    filiais = ["(Selecione uma Filial)", "Filial1", "Filial2","Filial3","Filial4","Filial5"]
+    filiais_var = tk.StringVar(root)
+    filiais_var.set(filiais[0])  # Definir valor padrão como vazio
+
+    label_filiais=tk.Label(root,text="Filiais Possíveis:")
+    label_filiais.grid(row=5,column=0,padx=10,pady=10)
+
+    menu_filiais = tk.OptionMenu(root, filiais_var, *filiais)
+    menu_filiais.grid(row=5, column=1, padx=10, pady=10)
+
+    botao_adicionar_filial = tk.Button(root, text="Adicionar", command= lambda: send_append_filial_prof(filiais_var.get()))
+    botao_adicionar_filial.grid(row=6,column=1,padx=10,pady=10)
+
+    botao_voltar = tk.Button(root, text="Criar Cadastro", command= lambda: send_cria_cadastro_admin(entrada_usuario.get(),entrada_senha.get(),lista_cursos_aptos,lista_filiais_aptas))
+    botao_voltar.grid(row=7,column=1,padx=10,pady=10)
+
+    label_alt= tk.Label(root, text=f"Alterar Cadastro")
+    label_alt.grid(row=8,column=0,padx=10,pady=10)
     #os users devem ser puxadas pelo módulo cadastro via cadastro.get_users()
     #os users com flag "professor" devem aparecer, o restante não
-    users = ["(Selecione uma Usuário)", "User1", "User2","User3","User4","User5"]
+    users = ["(Selecione um Usuário)", "User1", "User2","User3","User4","User5"]
     users_var = tk.StringVar(root)
     users_var.set(users[0])  # Definir valor padrão como vazio
 
-    label_senhaalt=tk.Label(root,text="Nova Senha:")
-    label_senhaalt.grid(row=5,column=0,padx=10,pady=10)
-
-    entrada_senhaalt= tk.Entry(root,show="*")
-    entrada_senhaalt.grid(row=5,column=1,padx=10,pady=10)
+    label_user=tk.Label(root,text="Selecione um Usuário:")
+    label_user.grid(row=9,column=0,padx=10,pady=10)
 
     menu_users = tk.OptionMenu(root, users_var, *users)
-    menu_users.grid(row=4, column=1, padx=10, pady=10)
+    menu_users.grid(row=9, column=1, padx=10, pady=10)
+
+
+    label_senhaalt=tk.Label(root,text="Nova Senha:")
+    label_senhaalt.grid(row=10,column=0,padx=10,pady=10)
+
+    entrada_senhaalt= tk.Entry(root,show="*")
+    entrada_senhaalt.grid(row=10,column=1,padx=10,pady=10)
 
     botao_alterar = tk.Button(root, text="Alterar Senha", command= lambda: send_altera_senha_cadastro(users_var.get(),entrada_senhaalt.get()))
-    botao_alterar.grid(row=6,column=0,padx=10,pady=10)
+    botao_alterar.grid(row=11,column=1,padx=10,pady=10)
     
     botao_voltar = tk.Button(root, text="Voltar", command=show_tela_principal_admin)
-    botao_voltar.grid(row=6,column=0,padx=10,pady=10)   
+    botao_voltar.grid(row=11,column=0,padx=10,pady=10) 
 
-def send_cria_cadastro_admin(usuario,senha):
+def send_append_curso_prof(id_curso):
+    if id_curso == "(Selecione um Curso)":
+        messagebox.showerror("Erro","Você não selecionou um Curso.")
+        show_tela_cadastro_admin()
+    else:
+        global lista_cursos_aptos
+        lista_cursos_aptos.append(id_curso)
+        show_tela_cadastro_admin() 
+
+def send_append_filial_prof(id_filial):
+    if id_filial == "(Selecione Uma Filial)":
+        messagebox.showerror("Erro","Você não selecionou uma Filial.")
+        show_tela_cadastro_admin()
+    else:
+        global lista_filiais_aptas
+        lista_filiais_aptas.append(id_filial)
+        show_tela_cadastro_admin()
+
+def send_cria_cadastro_admin(usuario,senha,cursos,filiais):
     #basicamente chama a função do módulo cadastro cadastro.add_castro(usuario,senha,"professor")
     #e ele criara um id correspondente a conta
-    messagebox.showinf("Cadastro Concluido","Novo Professor já foi credenciado.")
-    show_tela_cadastro_admin
+    #IDEIA: cursos e filiais é pra adicionar na entidade professor correspondente o id que sera relacionado com o cadastro um professor.add_professor ou set
+    messagebox.showinfo("Cadastro Concluido","Novo Professor já foi credenciado.")
+    show_tela_cadastro_admin()
 
 def send_altera_senha_cadastro(user,senha):
     #basicamente vai chama a função do módulo cadastro e usa cadastro.set_senha(user,senha)
     #serve para caso alguem esqueça ou pare de trabalhar e precisa ser retirado do acesso a conta
     messagebox.showinfo("Senha Alterada", f"A senha do usuario {user} foi alterada.")
-    show_tela_cadastro_admin
+    show_tela_cadastro_admin()
 
 def show_tela_filiais_admin():
     for widget in root.winfo_children():
