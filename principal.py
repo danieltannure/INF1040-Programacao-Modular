@@ -1,4 +1,5 @@
 #bibliotecas
+import sys
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import scrolledtext
@@ -9,6 +10,7 @@ from tkinter import ttk
 import calendar
 #módulos
 from .mensagens import *
+from . import cadastro
 
 # Variáveis globais de registro da sessão
 #Globais Aluno
@@ -109,23 +111,45 @@ def show_tela_cadastro():
     botao_voltar_login.grid(row=4,column=0, columnspan=1, pady=10)
 
 def send_add_conta(usuario,senha,bairro,ini,fim):
-    #futuramente vai chamar a função de acesso do módulo cadastro (add_cadastro_aluno)
-    #que vai adicionar usuario - idaluno e isso vai criar o aluno com o add_aluno
-    #baseado na conclusão da ação, se o status for OK, retornamos voltamos a tela de inicio normal
-    messagebox.showinfo("Cadastro Concluido", "Sua conta foi criada.")
-    #caso não, chamaremos futuramente a mensagem de erro do módulo de Erro coerente com o numero de erro retornado
-    show_tela_login()
-    return
+    #aqui deve ter do modulo aluno um add_aluno que pega bairro,ini,fim e cria um aluno e retorna uma id única
+    id_usuario = 1
+    erro, cadastro= cadastro.add_cadastro(usuario, senha, id_usuario, "aluno")
+    if erro != 0:
+        print(f"{erro}")
+        show_tela_cadastro()
+    else:
+        messagebox.showinfo("Cadastro Concluido", "Sua conta foi criada.")
+        show_tela_login()
+
 
 def get_credenciais(usuario, senha):
-
-    if usuario == "admin" and senha == "senha123":
-        messagebox.showinfo("Login bem-sucedido", "Bem-vindo!")
+    erro, id_usuario= cadastro.login(usuario,senha)
+    if erro != 0:
+        messagebox.showerror("Erro", "Credenciais inválidas")
+        print(f"Erro: {erro}")
+    
+    erro,check_admin= cadastro.is_admin(usuario)
+    if erro != 0:
+        messagebox.showerror("Erro", "Credenciais inválidas")
+        print(f"Erro: {erro}")
+    elif check_admin:
         show_tela_principal_admin()
-
+    erro,check_aluno= cadastro.is_aluno(usuario)
+    if erro != 0:
+        messagebox.showerror("Erro", "Credenciais inválidas")
+        print(f"Erro: {erro}")
+    elif check_aluno:
+        show_tela_principal_aluno()
+    erro,check_professor=cadastro.is_professor(usuario)
+    if erro != 0:
+        print(f"Erro: {erro}")
+    elif check_professor:
+        messagebox.showerror("Erro", "Credenciais inválidas")
+        show_tela_principal_professor()
+   
     #Futuramente checar com usuarios existentes, para id's de aluno no sistema
     #if status == 0 , prossegue
-    elif usuario == "aluno" and senha == "senha123":
+    if usuario == "aluno" and senha == "senha123":
         #guardar numa variável o id do aluno logado aluno_da_sessao
         global aluno_da_sessao
         aluno_da_sessao = None
@@ -142,9 +166,15 @@ def get_credenciais(usuario, senha):
         messagebox.showinfo("Login bem-sucedido", "Bem-vindo Professor!")
         show_tela_principal_professor()
 
-    else:
-        messagebox.showerror("Erro", "Credenciais inválidas")
+    
+        
 
+
+def send_sair():
+    for widget in root.winfo_children():
+        widget.destroy()
+    
+    sys.exit()
 
 #Sessão: Admin
 def show_tela_principal_admin():
@@ -173,7 +203,7 @@ def show_tela_principal_admin():
     botao_levantamentos.grid(row=1, rowspan=2, column=5,padx=10, pady=10)
 
 
-    botao_logout = tk.Button(root, text="Logout", command=show_tela_login)
+    botao_logout = tk.Button(root, text="Logout", command=send_sair)
     #WARNING: na aplicação final não deve-se retornar para a tela login, e sim para uma função que feche o sistema e salve tudo
     botao_logout.grid(row=3,column=0,padx=10,pady=10)
 
@@ -1012,7 +1042,7 @@ def show_tela_principal_aluno():
     botao_formacao = tk.Button(root,height=5, text="Formacoes", command=show_tela_formacoes_aluno)
     botao_formacao.grid(row=1, rowspan=2, column=3,padx=10, pady=10)
 
-    botao_logout = tk.Button(root, text="Logout", command=show_tela_login)
+    botao_logout = tk.Button(root, text="Logout", command=send_sair)
     #WARNING: na aplicação final não deve-se retornar para a tela login, e sim para uma função que feche o sistema e salve tudo
     botao_logout.grid(row=3,padx=10,pady=10)
 
@@ -1408,7 +1438,7 @@ def show_tela_principal_professor():
     botao_cursos = tk.Button(root,height=5, text="Turmas Ativas", command=show_tela_turmas_professor)
     botao_cursos.grid(row=1, rowspan=2, column=1,padx=10, pady=10)
 
-    botao_logout = tk.Button(root, text="Logout", command=show_tela_login)
+    botao_logout = tk.Button(root, text="Logout", command=send_sair)
     #WARNING: na aplicação final não deve-se retornar para a tela login, e sim para uma função que feche o sistema e salve tudo
     botao_logout.grid(row=3,padx=10,pady=10)
 
@@ -1647,8 +1677,10 @@ def send_set_avaliacao(id_avaliacao,nome,tipo,id_turma,id_prof,gabarito,pergunta
 root = tk.Tk()
 root.title("Plataforma de Ensino")
 
-# Mostra  a tela de login inicialmente
+# Mostra  a tela de login inicialmente e cria login do admin
+cadastro.add_cadastro("admin", "admin", -1, "admin")
 show_tela_login()
+
 
 # Iniciar o loop principal da interface gráfica
 root.mainloop()
