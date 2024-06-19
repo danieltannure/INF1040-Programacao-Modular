@@ -1809,12 +1809,16 @@ def show_tela_fazer_prova(id_avaliacao, id_aluno, id_turma):
 def send_add_respostas(id_aluno, id_avaliacao, respostas, id_turma):
     print(respostas)  # só ta aqui para debugar pode tirar no final
 
-    # Aqui será chamado o modulo respostas que adicionará a resposta do aluno
-    # por meio da função de acesso erro,dic= resposta.add_respostas(id_aluno,id_avaliacao,respostas)
+    # Aqui será chamado o modulo respostas que adicionará a resposta do aluno por meio da função de acesso 
+    codigo_retorno, dic = resposta.add_respostas(id_aluno,id_avaliacao, respostas)
+
+    if codigo_retorno == 0:
+        messagebox.showinfo("Concluido", "Suas Notas foram enviadas.")
     # baseado na conclusão da ação, se o status for OK, retornamos voltamos a tela de inicio normal
     # caso não, chamaremos futuramente a mensagem de erro do módulo de Erro coerente com o numero de erro retornado
-
-    messagebox.showinfo("Concluido", "Suas Notas foram enviadas.")
+    else:
+        # tratar erro aqui
+        pass
     show_tela_avaliacoes_aluno(id_turma)
 
 
@@ -1823,11 +1827,15 @@ def send_get_resposta_by_aluno(id_avaliacao, id_aluno, id_turma):
         messagebox.showinfo("Informação Inválida", "Você não selecionou uma Avaliação.")
         show_tela_avaliacoes_aluno()
     else:
-        # Futuramente, ele acessará o módulo resposta: erro, dic_resposta= resposta.get_resposta(id_aluno,id_avaliacao)
+        codigo_retorno, dic_resposta= resposta.get_resposta(id_aluno,id_avaliacao)
         # baseado na conclusão da ação, se o status for OK, retornamos voltamos a tela de inicio normal
         # caso não, chamaremos futuramente a mensagem de erro do módulo de Erro coerente com o numero de erro retornado
-        # nota = dic_resposta["nota"]
-        messagebox.showinfo("Resultado", "Sua nota é 10.")
+        if codigo_retorno == 0:
+            nota = dic_resposta["nota"]
+            messagebox.showinfo("Resultado", f"Sua nota é {nota}.")
+        else:
+            # tratar erro aqui
+            pass
         show_tela_avaliacoes_aluno(id_turma)
 
 
