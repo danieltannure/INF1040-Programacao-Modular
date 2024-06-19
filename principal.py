@@ -19,6 +19,7 @@ from .mensagens import *
 from . import cadastro
 from . import filial
 from . import filialturma
+from . import avaliacao
 
 # Variáveis globais de registro da sessão
 # Globais Aluno
