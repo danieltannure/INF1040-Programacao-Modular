@@ -82,7 +82,67 @@ def _write() -> None:
     except Exception as e:
         print(f"Erro de I/O em filial: {e}")
 
-# Acesso
+# Funcs de acesso
+def add_filial(nome: str, bairro: str) -> tuple[int, int]:
+    """
+    Adiciona uma nova filial e bairro
+    """
+    novo_id = _gera_novo_id()
+    if novo_id == -1:
+        return 8, None # type: ignore
+    
+    for filial_dict in _filiais:
+        if filial_dict["bairro"] == bairro or filial_dict["nome"] == nome:
+            # bairro ou nome ja existe
+            return 58, None # type: ignore
+    
+    nova_filial = {
+        "id": novo_id,
+        "nome": nome,
+        "bairro": bairro
+    }
+    _filiais.append(nova_filial)
+
+    return 0, novo_id
+
+def get_filiais() -> tuple[int, list[dict]]:
+    """
+    Retorna uma lista de todas as filiais
+    """
+    return 0, copy.deepcopy(_filiais)
+
+def get_filial(id_filial: int) -> tuple[int, dict]:
+    """
+    Retorna uma filial específica
+    """
+    for filial_dict in _filiais:
+        if filial_dict["id"] == id_filial:
+            return 0, copy.deepcopy(filial_dict)
+    
+    return 33, None # type: ignore
+
+def del_filial(id_filial: int) -> tuple[int, None]:
+    """
+    Deleta uma filial
+    """
+    for i, filial_dict in enumerate(_filiais):
+        if filial_dict["id"] == id_filial:
+            del _filiais[i]
+            return 0, None
+    
+    # Nao achou
+    return 33, None
+
+def get_filial_proxima(bairro: str) -> tuple[int, int]:
+    """
+    Retorna o ID da filial presente no bairro informado
+    """
+    for filial_dict in _filiais:
+        if filial_dict["bairro"] == bairro:
+            return 0, filial_dict["id"]
+    
+    # Nao achou
+    return 33, None # type: ignore
 
 # Setup
 # Popula lista
