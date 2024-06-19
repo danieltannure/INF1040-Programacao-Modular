@@ -13,3 +13,6 @@
 [submodule "turma"]
 	path = turma
 	url = https://github.com/bathwaterpizza/turma
+[submodule "cursoturma"]
+	path = cursoturma
+	url = https://github.com/bathwaterpizza/cursoturma
