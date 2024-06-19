@@ -1,4 +1,5 @@
 import json, atexit
+from .. import curso, avaliacao
 
 # from mockAvaliacaoCurso import get_curso, get_avaliacao #type: ignore
 
@@ -126,8 +127,8 @@ def salvar_criterios() -> None:
 
 # ----------funcoes auxiliares-------------
 def existe_curso_e_avaliacao(id_curso: int, id_avaliacao: int) -> int:
-    curso = get_curso(id_curso)
-    avaliacao = get_avaliacao(id_avaliacao)
+    curso = curso.get_curso(id_curso)
+    avaliacao = avaliacao.get_avaliacao(id_avaliacao)
 
     if curso != 0:
         return curso
