@@ -986,7 +986,7 @@ def send_media(id_avaliacao):
             messagebox.showinfo("Média da Avaliação", f"A media da avaliação {id_avaliacao} foi de {media}")
             show_media_avaliacao()
         else:
-             messagebox.showerror("Erro", f"{get_msg_status(erro[0])}")
+            messagebox.showerror("Erro", f"{get_msg_status(erro[0])}")
             show_media_avaliacao()
 
 def show_turma_por_filiais():
