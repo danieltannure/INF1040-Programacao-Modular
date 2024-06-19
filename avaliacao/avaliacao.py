@@ -221,12 +221,12 @@ def set_avaliacao(
         return 57, None  # type: ignore
 
     for avaliacao in _avaliacoes:
-        if avaliacao["id"] == id_turma:
+        if avaliacao["id"] == id_avaliacao:
             avaliacao["nome"] = nome
             avaliacao["tipo"] = nome
             avaliacao["gabarito"] = gabarito
             avaliacao["perguntas"] = perguntas
-            return 0, copy.deepcopy(turma)
+            return 0, copy.deepcopy(avaliacao)
 
     # avaliação não encontrada
     return 52, None
