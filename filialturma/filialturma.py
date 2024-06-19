@@ -141,4 +141,4 @@ def get_filial_por_turma(turma_id: int) -> tuple:
     except json.JSONDecodeError:
         return ARQUIVO_EM_FORMATO_INVALIDO, []
     except Exception as e:
-        return ERRO_DESCONHECIDO, []
+        return ERRO_DESCONHECIDO, []

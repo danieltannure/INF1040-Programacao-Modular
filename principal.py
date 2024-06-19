@@ -12,6 +12,9 @@ import calendar
 # Apenas o mensagens fica nesse formato, pra não precisar do prefixo mensagens. nos erros
 # Para o resto, use: from . import modulo
 from .mensagens import *
+from . import cadastro
+from . import filialturma
+from . import filial
 
 # Variáveis globais de registro da sessão
 #Globais Aluno
@@ -112,42 +115,73 @@ def show_tela_cadastro():
     botao_voltar_login.grid(row=4,column=0, columnspan=1, pady=10)
 
 def send_add_conta(usuario,senha,bairro,ini,fim):
-    #futuramente vai chamar a função de acesso do módulo cadastro (add_cadastro_aluno)
-    #que vai adicionar usuario - idaluno e isso vai criar o aluno com o add_aluno
-    #baseado na conclusão da ação, se o status for OK, retornamos voltamos a tela de inicio normal
-    messagebox.showinfo("Cadastro Concluido", "Sua conta foi criada.")
-    #caso não, chamaremos futuramente a mensagem de erro do módulo de Erro coerente com o numero de erro retornado
-    show_tela_login()
-    return
+    if bairro == "(Selecione o Bairro)":
+        messagebox.showerror("Bairro Inválido", "Selecione um Bairro")
+        show_tela_cadastro()
+    else:
+        #testa se ini é convertivel pra int
+        try:
+            valor_ini= int(ini)
+            #testa se fim é convertivel pra int
+            try:
+                valor_fim=int(fim)
+                if valor_ini < valor_fim:
+                    #aqui deve ter do modulo aluno um add_aluno que pega bairro,ini,fim e cria um aluno e retorna uma id única
+                    id_usuario = 1
+                    erro= cadastro.add_cadastro(usuario, senha, id_usuario, "aluno")
+                    if erro[0] != 0:
+                        messagebox.showerror("Erro", f"{get_msg_status(erro[0])}")
+                        show_tela_cadastro()
+                    else:
+                        messagebox.showinfo("Cadastro Concluido", "Sua conta foi criada.")
+                        show_tela_login()
+                else:
+                    messagebox.showerror("Intervalo Inválido","Insira o intervalo de disponibilidade corretamente")
+                    show_tela_cadastro()
+            except ValueError:
+                messagebox.showerror("Numero Inválido","Insira um número para o fim corretamente.")
+                show_tela_cadastro()
+        except ValueError:
+            messagebox.showerror("Numero Inválido","Insira um número para o início corretamente.")
+            show_tela_cadastro()
 
 def get_credenciais(usuario, senha):
-
-    if usuario == "admin" and senha == "senha123":
-        messagebox.showinfo("Login bem-sucedido", "Bem-vindo!")
-        show_tela_principal_admin()
-
-    #Futuramente checar com usuarios existentes, para id's de aluno no sistema
-    #if status == 0 , prossegue
-    elif usuario == "aluno" and senha == "senha123":
-        #guardar numa variável o id do aluno logado aluno_da_sessao
-        global aluno_da_sessao
-        aluno_da_sessao = None
-        messagebox.showinfo("Login bem-sucedido", "Bem-vindo Aluno!")
-        show_tela_principal_aluno()
-
-
-    #Futuramente checar com usuarios existentes, para id's de professor no sistema
-    #if status == 0 , prossegue
-    elif usuario == "professor" and senha == "senha123":
-        #guardar numa variável o id do professor logado professor_da_sessao
-        global professor_da_sessao 
-        professor_da_sessao = None
-        messagebox.showinfo("Login bem-sucedido", "Bem-vindo Professor!")
-        show_tela_principal_professor()
-
+    #pega o id do usuário que está entrando numa sessão
+    erro, id_usuario= cadastro.login(usuario,senha)
+    if erro != 0:
+        messagebox.showerror("Erro", f"{get_msg_status(erro)}")
+        show_tela_login()
     else:
-        messagebox.showerror("Erro", "Credenciais inválidas")
+    
+        #checa se ele é admin
+        erro,check_admin= cadastro.is_admin(usuario)
+        if erro != 0:
+            messagebox.showerror("Erro", f"{get_msg_status(erro)}")
+            show_tela_login()
+        elif check_admin:
+            show_tela_principal_admin()
 
+        #checa se ele é aluno
+        erro,check_aluno= cadastro.is_aluno(usuario)
+        if erro != 0:
+            messagebox.showerror("Erro", f"{get_msg_status(erro)}")
+            show_tela_login()
+        elif check_aluno:
+            show_tela_principal_aluno()
+            #guarda o id_aluno que está sendo usado
+            global aluno_da_sessao
+            aluno_da_sessao = id_usuario
+        
+        #checa se ele é professor
+        erro,check_professor=cadastro.is_professor(usuario)
+        if erro != 0:
+            messagebox.showerror("Erro", f"{get_msg_status(erro)}")
+            show_tela_login()
+        elif check_professor:
+            show_tela_principal_professor()
+            #guarda o id_professor que está sendo usado
+            global professor_da_sessao
+            professor_da_sessao = id_usuario
 
 #Sessão: Admin
 def show_tela_principal_admin():
@@ -794,12 +828,46 @@ def send_append_filial_prof(id_filial):
         lista_filiais_aptas.append(id_filial)
         show_tela_cadastro_admin()
 
-def send_cria_cadastro_admin(usuario,senha,cursos,filiais):
-    #basicamente chama a função do módulo cadastro cadastro.add_castro(usuario,senha,"professor")
-    #e ele criara um id correspondente a conta
-    #IDEIA: cursos e filiais é pra adicionar na entidade professor correspondente o id que sera relacionado com o cadastro um professor.add_professor ou set
-    messagebox.showinfo("Cadastro Concluido","Novo Professor já foi credenciado.")
-    show_tela_cadastro_admin()
+def send_cria_cadastro_admin(usuario,senha,cursos,filiais,ini,fim):
+    if not cursos:
+        messagebox.showerror("Sem Cursos","Professor não tem cursos aptos.")
+        show_tela_criacadastro_admin()
+    else:
+        if not filiais:
+            messagebox.showerror("Sem Filial.","Professor não tem filial disponível.")
+            show_tela_criacadastro_admin()
+        else:
+            try:
+                valor_ini= int(ini)
+                try:
+                    valor_fim=int(fim)
+                    if valor_ini<valor_fim:
+                        #cursos e filiais é pra adicionar na entidade professor correspondente o id que sera relacionado 
+                        #teste do append apenas (pode excluir no final)
+                        print(f"{cursos}")
+                        print(f"{filiais}")
+                        horario={"ini":valor_ini,"fim":valor_fim}
+                        #aqui deve ser iniciado o add_professor do modulo professor onde ele pegaria cursos filiais horario e geraria um id novo 
+                        id_usuario=2
+                        erro= cadastro.add_cadastro(usuario,senha,id_usuario,"professor")
+                        if erro[0] != 0:
+                            messagebox.showerror("Erro",f"Erro: {get_msg_status(erro[0])}")
+                            show_tela_criacadastro_admin()
+                        else:
+                            messagebox.showinfo("Cadastro Concluido","Novo Professor já foi credenciado.")
+
+                            #limpa as listas para receberem os cursos e filiais que o professor que está sendo criado pode lecionar/estar
+                            global lista_cursos_aptos,lista_filiais_aptas
+                            lista_cursos_aptos=[]
+                            lista_filiais_aptas=[]
+
+                            show_tela_criacadastro_admin()  
+                    else:
+                        messagebox.showerror("Error","Intervalo de disponibilidade inválido")   
+                except ValueError:
+                     messagebox.showerror("Numero Inválido","Numero de horário final incorreto.")
+            except ValueError:
+                messagebox.showerror("Numero Inválido","Numero de horário inicial incorreto.")
 
 def send_altera_senha_cadastro(user,senha):
     #basicamente vai chama a função do módulo cadastro e usa cadastro.set_senha(user,senha)
@@ -1649,6 +1717,9 @@ def send_set_avaliacao(id_avaliacao,nome,tipo,id_turma,id_prof,gabarito,pergunta
 # Criar a janela principal
 root = tk.Tk()
 root.title("Plataforma de Ensino")
+
+# Cria user admin
+cadastro.add_cadastro("admin", "admin", -1, "admin")
 
 # Mostra  a tela de login inicialmente
 show_tela_login()

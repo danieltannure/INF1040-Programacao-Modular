@@ -12,7 +12,7 @@
 
 ### Executando
 
-Seu diretório no terminal deve ser um acima do principal:
+Seu **diretório** no terminal deve ser **um acima do principal**:
 
 `cd (pasta parente do principal)/`
 
