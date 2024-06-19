@@ -22,6 +22,10 @@ from . import filialturma
 from . import avaliacao
 from . import criterio
 from . import respostas
+from . import professor
+from . import aluno
+from . import leciona
+from . import cursoturma
 
 # Variáveis globais de registro da sessão
 # Globais Aluno
@@ -168,7 +172,10 @@ def send_add_conta(usuario, senha, bairro, ini, fim):
                 valor_fim = int(fim)
                 if valor_ini < valor_fim:
                     # aqui deve ter do modulo aluno um add_aluno que pega bairro,ini,fim e cria um aluno e retorna uma id única
-                    id_usuario = 1
+                    erro,id_usuario = aluno.add_aluno(usuario, bairro, [valor_ini, valor_fim])
+                    if(erro != 0):
+                        messagebox.showerror("Erro", f"{get_msg_status(erro)}")
+                        show_tela_cadastro()
                     erro = cadastro.add_cadastro(usuario, senha, id_usuario, "aluno")
                     if erro[0] != 0:
                         messagebox.showerror("Erro", f"{get_msg_status(erro[0])}")
@@ -912,22 +919,11 @@ def show_equipe_professores():
     # chama a função do módulo professor professor.get_professores()
     # rode um for e monte uma label para cada professor da lista mostrando seu nome e cursos q leciona
 
-    professores = [
-        {
-            "id": 1,
-            "nome": "A",
-            "cursos": [1, 2],
-            "filiais": [4, 2],
-            "horarios": {"ini": 5, "fim": 8},
-        },
-        {
-            "id": 2,
-            "nome": "B",
-            "cursos": [5, 2],
-            "filiais": [9, 2],
-            "horarios": {"ini": 9, "fim": 10},
-        },
-    ]
+    erro, professores = professor.get_professores()
+    if(erro != 0):
+        messagebox.showerror("Erro", f"{get_msg_status(erro)}")
+        show_tela_levantamentos_admin()
+    
     indice_fileira = 1
     for i in range(len(professores)):
         nome = professores[i]["nome"]
@@ -987,7 +983,7 @@ def send_media(id_avaliacao):
             show_media_avaliacao()
         else:
              messagebox.showerror("Erro", f"{get_msg_status(erro[0])}")
-            show_media_avaliacao()
+             show_media_avaliacao()
 
 def show_turma_por_filiais():
     for widget in root.winfo_children():
@@ -1219,7 +1215,7 @@ def send_cria_cadastro_admin(usuario, senha, cursos, filiais, ini, fim):
                         print(f"{filiais}")
                         horario = {"ini": valor_ini, "fim": valor_fim}
                         # aqui deve ser iniciado o add_professor do modulo professor onde ele pegaria cursos filiais horario e geraria um id novo
-                        id_usuario = 2
+                        id_usuario = professor.add_professor(usuario, filiais, horario, cursos)['id']
                         erro = cadastro.add_cadastro(
                             usuario, senha, id_usuario, "professor"
                         )
@@ -2082,6 +2078,11 @@ def show_tela_opcoes_professor():
 
     # as turmas possíveis deverão ser puxadas baseada pelo horario,filiais,cursos do professor
     # que podem ser puxados por meio do modulo professor erro,dic_prof = professor.get_professor(id_professor)
+    erro, dic_prof = professor.get_professor(professor_da_sessao)
+    if(erro != 0):
+        messagebox.showerror("Erro", f"{get_msg_status(erro)}")
+        show_tela_principal_professor()
+
     # depois disso basta caçar todas as turmas e suas respectivas informações
     # faz um for pra cada curso do professor e usa o módulo assunto pra pegar as turmas  possíveis assunto.get_turmas_by_curso(dic_prof["cursos"][i])
     # crie um item de lista para cada uma das turmas encontradas e guarde seu id e o id do curso, por fim guarde todos esse itens numa lista, formando uma matriz
@@ -2096,6 +2097,8 @@ def show_tela_opcoes_professor():
         ["id_turma2", "id_curso2", "Leme", {"ini": 1, "fim": 3}],
         ["id_turma3", "id_curso3", "Centro", {"ini": 1, "fim": 3}],
     ]
+
+   
 
     for i, aula in enumerate(matriz_aulas):
         turma, curso, local, horario = aula
@@ -2117,11 +2120,14 @@ def send_add_leciona(id_turma, id_professor):
     resultado = messagebox.askyesno("Aviso", "Deseja se inscrever nessa Turma?")
     if resultado:
         # aqui será adicionado a função de acesso do módulo leciona
-        # erro= leciona.add_leciona(id_professor,id_turma)
+        resposta = leciona.add_leciona(id_professor,id_turma)
+        if(resposta[0] != 0):
+             messagebox.showerror("Erro", f"{get_msg_status(resposta[0])}")
+             show_tela_opcoes_professor()
         # baseado na conclusão da ação, se o status for OK, retornamos voltamos a tela de inicio normal
         # caso não, chamaremos futuramente a mensagem de erro do módulo de Erro coerente com o numero de erro retornado
         # além disso deverá se chamado o módulo turma para abrir a turma chamando a função turma.abreturma(id_turma)
-        messagebox.showinfo("Concluido", "Incrisção bem sucedida.")
+        messagebox.showinfo("Concluido", "Inscrição bem sucedida.")
         show_tela_opcoes_professor()
     else:
         show_tela_opcoes_professor()
@@ -2138,10 +2144,11 @@ def show_tela_turmas_professor():
     label_turma.grid(row=1, column=0, padx=10, pady=10)
 
     # as turmas vão ter que se puxadas do database do módulo leciona
-    # erro, turmas = leciona.get_turmas_by_prof(professor_da_sessao)
+    erro, turmas = leciona.get_turmas_by_prof(professor_da_sessao)
+    if(erro != 0):
+        messagebox.showerror("Erro", f"{get_msg_status(erro)}")
+        show_tela_principal_professor()
     # verificar quais delas estão de fato ativas
-
-    turmas = ["(Selecione uma Turma)", "102A", "103A", "104A", "105A", "106A"]
     turmas_var = tk.StringVar(root)
     turmas_var.set(turmas[0])  # Definir valor padrão como vazio
 

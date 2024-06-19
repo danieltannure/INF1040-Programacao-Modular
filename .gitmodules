@@ -13,3 +13,12 @@
 [submodule "alunoturma"]
 	path = alunoturma
 	url = https://github.com/bathwaterpizza/alunoturma
+[submodule "professor"]
+	path = professor
+	url = https://github.com/jvsfrancisco/professor
+[submodule "aluno"]
+	path = aluno
+	url = https://github.com/jvsfrancisco/aluno
+[submodule "leciona"]
+	path = leciona
+	url = https://github.com/jvsfrancisco/leciona
