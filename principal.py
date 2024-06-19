@@ -978,27 +978,16 @@ def send_media(id_avaliacao):
         messagebox.showerror("Error", "Nenhuma Avaliação foi selecionada.")
         show_media_avaliacao()
     else:
-        # pega as resposta pelo modulo respostas
-        # erro,lista_respostas= respostas.get_respostas_by_avaliacao(id_avaliacao)
-        # depois basta percorrer um for e dar append em todas as notas encontradas
-        # no final ficar com algo do tipo:
-        respostas = [
-            {"notas": 5},
-            {"notas": 6},
-            {"notas": 7},
-            {"notas": 4},
-            {"notas": 6},
-        ]
-        notas = []
-        for i in range(len(respostas)):
-            notas.append(respostas[i]["notas"])
+        codigo_retorno, lista_respostas= respostas.get_respostas_by_avaliacao(id_avaliacao)
 
-        media = sum(notas) / len(notas)
-        messagebox.showinfo(
-            "Média da Avaliação", f"A media da avaliação {id_avaliacao} foi de {media}"
-        )
-        show_media_avaliacao()
-
+        if codigo_retorno == 0:
+            notas = [resp["nota"] for resp in lista_respostas]
+            media = sum(notas) / len(notas)
+            messagebox.showinfo("Média da Avaliação", f"A media da avaliação {id_avaliacao} foi de {media}")
+            show_media_avaliacao()
+        else:
+            messagebox.showerror("Error", "Nenhuma resposta foi encontrada para esta avaliação.")
+            show_media_avaliacao()
 
 def show_turma_por_filiais():
     for widget in root.winfo_children():
