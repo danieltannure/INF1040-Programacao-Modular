@@ -1,140 +1,116 @@
-# Gerenciamento de Cursos
+# Como utilizar
 
-Este módulo em Python gerencia uma lista de cursos, permitindo adicionar, deletar e consultar cursos. Os dados são persistidos em um arquivo JSON.
+No diretório imediatamente acima do seu módulo, execute:
 
-## Funcionalidades
+`git clone https://github.com/Danielbano1/curso`
 
-O módulo expõe as seguintes funções:
+Depois você pode utilizar as funções de curso com o import:
 
-- `inicializar()`
-- `finalizar()`
-- `get_curso(id)`
-- `get_cursos()`
-- `add_curso(nome, carga_horaria, prereqs, duracao_semanas)`
-- `del_curso(id)`
+```Python
+from .. import curso
 
-## Variáveis Globais
+curso.get_curso(25)
+```
 
-- `lista_cursos`: Lista de cursos ativos.
-- `cursos_deletados`: Lista de cursos deletados.
-- `PATH`: Caminho do arquivo JSON onde os dados são armazenados.
+**OBS:** Para utilizar imports relativos, seu módulo também precisa fazer parte de um package, ou seja, o diretório do módulo deve possuir um arquivo `__init__.py` assim como o nosso.
 
-## Códigos de Erro
+Alternativamente, se o diretório acima do seu módulo também for um repositório, como o principal, você pode adicionar curso como submódulo:
 
-- `OPERACAO_REALIZADA_COM_SUCESSO = 0`
-- `ARQUIVO_NAO_ENCONTRADO = 30`
-- `ARQUIVO_EM_FORMATO_INVALIDO = 31`
-- `ERRO_NA_ESCRITA_DO_ARQUIVO = 32`
-- `CURSO_NAO_ENCONTRADO = 5`
-- `CURSO_JA_EXISTE = 38`
-- `CURSO_NAO_ATIVO = 39`
+`git submodule add https://github.com/Danielbano1/curso`
 
-## Funções
+## Dependências
 
-### `inicializar() -> int`
+Python 3.9+
 
-Carrega os dados do arquivo JSON para as variáveis globais `lista_cursos` e `cursos_deletados`.
+# Documentação adicional
 
-**Retorna:**
-- `OPERACAO_REALIZADA_COM_SUCESSO` (0) se a operação foi bem-sucedida.
-- `ARQUIVO_NAO_ENCONTRADO` (30) se o arquivo não foi encontrado.
-- `ARQUIVO_EM_FORMATO_INVALIDO` (31) se o arquivo JSON está em formato inválido.
+O módulo possui um endereço de um arquivo fixo para registro da base de dados em memória persistente, inacessivel ao cliente.
+O módulo usa um espaço em memória de acesso rápido para guardar o banco de dados para o uso das funcionalidades do módulo. Esta posição de memória também é inacessível ao cliente.
 
-### `finalizar() -> int`
+## inicializar
 
-Salva os dados das variáveis globais `lista_cursos` e `cursos_deletados` no arquivo JSON.
+Esta função realiza a leitura da base de dados na memória persistente para um espaço de acesso rápido a ser usado pelas outras funções. A memória de acesso rápido acessada é fixa e qualquer informação previamente armazenada será perdida.
 
-**Retorna:**
-- `OPERACAO_REALIZADA_COM_SUCESSO` (0) se a operação foi bem-sucedida.
-- `ERRO_NA_ESCRITA_DO_ARQUIVO` (32) se houve erro na escrita do arquivo.
+### Requisitos
 
-### `get_curso(id: int) -> tuple[int, dict]`
+- Retorna ARQUIVO_NAO_ENCONTRADO caso não encontre o arquivo de leitura
+- Retorna ARQUIVO_EM_FORMATO_INVALIDO caso encontre o arquivo de leitura, mas não seja capaz de fazer a leitura
+- Retorna OPERACAO_REALIZADA_COM_SUCESSO caso faça a leitura com sucesso
+- Não avalia a integridade do conteudo lido e sua compatibilidade com as aplicações que o usarão
 
-Recupera um curso pelo seu ID.
+## finalizar
 
-**Parâmetros:**
-- `id`: Identificador do curso.
+Esta função realiza o registro da base de dados em memória de acesso rápido sendo usada pelo módulo no arquivo resignado pelo módulo. Qualquer conteudo prévio no arquivo será sobrescrito.
 
-**Retorna:**
-- Tupla contendo o código de erro e o curso (ou `None` se não encontrado).
+### Requisitos
 
-### `get_cursos() -> tuple[int, list[dict]]`
+- Retorna ERRO_NA_ESCRITA_DO_ARQUIVO caso não seja capaz de fazer a escrita
+- Retorna OPERACAO_REALIZADA_COM_SUCESSO caso faça a escrita com sucesso
 
-Recupera todos os cursos ativos.
+## get_curso
 
-**Retorna:**
-- Tupla contendo o código de erro e a lista de cursos ativos.
+Esta função recebe um valor de inteiro em seu parâmetro e busca na base de dados do módulo um curso cujo "id" corresponda ao valor. Esta função retorna uma tupla com uma mensagem de erro seguida de um dicionário com as informações do curso buscado na base de dados caso encontrado ou seguida de None caso contrário.
 
-### `add_curso(nome: str, carga_horaria: int, prereqs: list[int], duracao_semanas: int) -> tuple[int, int]`
+### Requisitos
 
-Adiciona um novo curso.
+- Retorna uma tupla com a mensagem CURSO_NAO_ENCONTRADO e None, em seqência, caso não encontre um curso cujo "id" corresponda ao valor em parametro
+- Retorna uma tupla com a mensagem CURSO_NAO_ATIVO e um dicionário com as informações da base de dados referentes ao curso cuja "id" corresponda ao valor em parâmetro, caso tal curso seja encontrado e esteja listado como um curso desativado
+- Retorna uma tupla com a mensagem OPERACAO_REALIZADA_COM_SUCESSO e um dicionário com as informações da base de dados referentes ao curso cuja "id" corresponda ao valor em parâmetro, caso tal curso seja encontrado e não esteja listado como um curso desativado
 
-**Parâmetros:**
-- `nome`: Nome do curso.
-- `carga_horaria`: Carga horária do curso.
-- `prereqs`: Lista de IDs de cursos pré-requisitos.
-- `duracao_semanas`: Duração do curso em semanas.
+### Acoplamento
 
-**Retorna:**
-- Tupla contendo o código de erro e o ID do novo curso.
+- id: int
+  Variável a ser buscada na base de dados como "id" do curso
 
-### `del_curso(id: int) -> tuple[int, int]`
+## get_cursos
 
-Deleta um curso pelo seu ID.
+Esta função retorna uma tupla com uma mensagem de erro seguida de uma lista de dicionários com todas as informações de todos os cursos ativos no banco de dados do módulo.
 
-**Parâmetros:**
-- `id`: Identificador do curso.
+### Requisitos
 
-**Retorna:**
-- Tupla contendo o código de erro e o ID do curso deletado.
+- Retorna uma tupla com a mensagem OPERACAO_REALIZADA_COM_SUCESSO e uma lista de dicionários com todas as informações de todos os cursos registrados na base de dados como cursos ativos
 
-## Funções Internas
+## add_curso
 
-### `exibe_curso(id)`
+Esta função recebe em seus parâmetros um nome, uma carga horaria, uma lista dos ids dos prerequisitos e uma duração em semanas, em sequência. Esta função busca na base de dados do módulo se existe já um curso com o nome solicitado. Caso encontre retorna uma tupla com uma mensagem de erro seguida por None, caso contrário é gerado um novo "id" para curso e um novo curso é registrado com tal "id" e com as informações fornecidas nos parâmetros na base de dados do módulo, retornando uma tupla com uma mensagem de erro seguida pelo id do novo curso.
 
-Exibe detalhes de um curso pelo ID.
+### Requisitos
 
-### `exibe_cursos() -> int`
+- Retorna uma tupla com a mensagem CURSO_JA_EXISTE e None, em sequência, caso encontre um curso registrado no banco de dados do módulo com "nome" como o informado no primeiro valor dos parâmetros
+- Retorna uma tupla com a mensagem OPERACAO_REALIZADA_COM_SUCESSO e um inteiro correspondente do "id" gerado para o novo curso registrado
+- Não é realizada nenhuma avaliação dos prerequisitos informados nos parâmetros e seus possíveis efeitos no uso da aplicação
 
-Exibe todos os cursos ativos.
+### Acoplamento
 
-## Inicialização e Finalização Automática
+- nome: str
+  Nome do novo curso. É único para os cursos e é usado na busca por repetição nesta função
+- carga_horaria: int
+  Inteiro correspondente às horas semanais do curso
+- prereqs: list[int]
+  Lista com inteiros que correspondem aos "id"s dos cursos que são prerequisitos para este curso
+- duracao_semanas: int
+  Inteiro correspondente à duração do curso em semanas
 
-O programa carrega os dados ao iniciar e salva os dados ao finalizar utilizando `atexit.register(finalizar)`.
+### Condições de acoplamento
 
-## Exemplo de Uso
+- "carga_horaria" não deve exceder 168
 
-```python
-# Inicializar o sistema
-erro = inicializar()
-if erro != OPERACAO_REALIZADA_COM_SUCESSO:
-    print(f"Erro na inicialização: {erro}")
+## del_curso
 
-# Adicionar um curso
-erro, id_curso = add_curso("Curso de Python", 40, [], 4)
-if erro == OPERACAO_REALIZADA_COM_SUCESSO:
-    print(f"Curso adicionado com ID: {id_curso}")
+Esta função recebe como parâmetro um inteiro e busca, então, na base de dados um curso ativo com um "id" correspondente. Caso encontre o curso é registrado como inativo. Retorna uma mensagem de erro o inteiro fornecido nos parâmetros.
 
-# Exibir cursos ativos
-exibe_cursos()
+### Requisitos
 
-# Deletar um curso
-erro, id_curso = del_curso(id_curso)
-if erro == OPERACAO_REALIZADA_COM_SUCESSO:
-    print(f"Curso com ID {id_curso} deletado")
+- Retorna uma tupla com a mensagem CURSO_NAO_ENCONTRADO e o "id" fornecido nos parâmetros caso não haja um curso com o "id" informado registrado na base de dados do módulo
+- Retorna uma tupla com a mensagem CURSO_NAO_ATIVO e o "id" fornecido nos parâmetros caso haja um curso com o "id" informado registrado na base de dados do módulo como inativo
+- Retorna uma tupla com a mensagem OPERACAO_REALIZADA_COM_SUCESSO e o "id" fornecido nos parâmetros caso haja um curso com o "id" informado registrado na base de dados do módulo como ativo
+
+### Acoplamento
+
+- id: int
+  "id" do curso a ser desativado
 
 
-Estrutura do JSON
-O arquivo JSON (curso.json) deve ter a seguinte estrutura:
-{
-    "lista_cursos": [
-        {
-            "id": 1,
-            "nome": "Curso Exemplo",
-            "carga_horaria": 40,
-            "prereqs": [],
-            "duracao_semanas": 4
-        }
-    ],
-    "cursos_deletados": []
-}
+
+
+
