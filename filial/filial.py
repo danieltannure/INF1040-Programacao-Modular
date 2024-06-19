@@ -93,8 +93,8 @@ def add_filial(nome: str, bairro: str) -> tuple[int, int]:
     
     for filial_dict in _filiais:
         if filial_dict["bairro"] == bairro or filial_dict["nome"] == nome:
-            print("Nome da filial ou bairro duplicado")
-            return 34, None # type: ignore
+            # bairro ou nome ja existe
+            return 58, None # type: ignore
     
     nova_filial = {
         "id": novo_id,
