@@ -16,3 +16,6 @@
 [submodule "cursoturma"]
 	path = cursoturma
 	url = https://github.com/bathwaterpizza/cursoturma
+[submodule "alunoturma"]
+	path = alunoturma
+	url = https://github.com/bathwaterpizza/alunoturma
