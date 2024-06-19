@@ -7,14 +7,16 @@ from datetime import datetime, timedelta
 #bibliotecas para montar o calendário
 from tkinter import ttk
 import calendar
+import os
+import json
 
 # Módulos
 # Apenas o mensagens fica nesse formato, pra não precisar do prefixo mensagens. nos erros
 # Para o resto, use: from . import modulo
 from .mensagens import *
 from . import cadastro
-from . import filialturma
-from . import filial
+import filial
+import aula
 
 # Variáveis globais de registro da sessão
 #Globais Aluno
@@ -86,6 +88,12 @@ def show_tela_cadastro():
 
     #os bairros vão ter que se puxado de algum database do módulo filial  
 
+    caminho_bairros = os.path.join(os.path.dirname(__file__), 'filial/data', 'bairros.json')
+
+    with open(caminho_bairros, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+        bairros = ["(Selecione o Bairro)"] + data.get('bairros', [])
+    
     bairros = ["(Selecione o Bairro)", "Centro", "Bela Vista", "Jardim Europa", "Vila Madalena", "Moema"]
     bairro_var = tk.StringVar(root)
     bairro_var.set(bairros[0])  # Definir valor padrão como vazio
@@ -699,14 +707,20 @@ def show_turma_por_filiais():
     label_turmasfil.grid(row=0,column=0,padx=10,pady=10)
 
     #as filiais devem ser puxadas pelo módulo filial via filial.get_filiais()
-    filiais = ["(Selecione uma Filial)", "Tijuca", "Botafogo", "Freguesia", "Vila Isabel", "Ipanema"]
+    codigo_retorno, filiais = filial.get_filiais()
+
+    if codigo_retorno == 0:  # Verifica se a operação foi realizada com sucesso
+        nomes_filiais = [filial['nome'] for filial in filiais]
+        nomes_filiais.insert(0, "(Selecione uma Filial)")
+    else:
+        nomes_filiais = ["Filiais não encontradas"]
     filiais_var = tk.StringVar(root)
-    filiais_var.set(filiais[0])  # Definir valor padrão como vazio
+    filiais_var.set(nomes_filiais[0])  # Definir valor padrão como vazio
 
     label_turmasfil= tk.Label(root, text=f"Selecione uma Filial:")
     label_turmasfil.grid(row=1,column=0,padx=10,pady=10)
 
-    menu_filiais = tk.OptionMenu(root, filiais_var, *filiais)
+    menu_filiais = tk.OptionMenu(root, filiais_var, *nomes_filiais)
     menu_filiais.grid(row=1, column=1, padx=10, pady=10)
 
     botao_ver_media = tk.Button(root, text="Ver Turmas", command=lambda: send_turmas_por_filiais(filiais_var.get()))
@@ -715,16 +729,40 @@ def show_turma_por_filiais():
     botao_voltar = tk.Button(root, text="Voltar", command=show_tela_levantamentos_admin)
     botao_voltar.grid(row=2,column=0,padx=10,pady=10)   
 
-def send_turmas_por_filiais(id_filial):
-    if id_filial == "(Selecione uma Filial)":
-        messagebox.showerror("Erro","Nenhuma Filial selecionada.")
+def send_turmas_por_filiais(nome_filial):
+    if nome_filial == "(Selecione uma Filial)":
+        messagebox.showerror("Erro", "Nenhuma Filial selecionada.")
         show_turma_por_filiais()
     else:
-        #pega do modulo aula  aula.get_turmas_by_filial(id_filial)
-        #roda um for verificando com a função turma.is_ativa(id_turma) se da true
-        #caso de conte 1 e retorne o valor no final do for
+        # Obter o código e a lista de filiais
+        codigo, filiais = filial.get_filiais()
+        if codigo != 0:
+            messagebox.showerror("Erro", f"Código de erro: {codigo}")
+            return
+        
+        id_filial = None
+        for f in filiais:
+            if f['nome'] == nome_filial:
+                id_filial = f['id']
+                break
+        
+        if id_filial is None:
+            messagebox.showerror("Erro", f"Não foi possível encontrar a filial com o nome '{nome_filial}'.")
+            return
 
-        messagebox.showinfo("Turmas na Filial",f"Existem x Turmas na filial {id_filial}")
+        # Obter turmas da filial através do módulo aula
+        codigo_turmas, turmas = aula.get_turmas_por_filial(id_filial)
+        if codigo_turmas != 0:
+            messagebox.showerror("Erro", f"Código de erro: {codigo_turmas}")
+            return
+        
+        # Contar turmas ativas PRECISA DA AJUDA PARA COMPLETAR AQUI DO MODULO TURMA
+        turmas_ativas = 0
+        # for turma_id in turmas:
+        #     if is_ativa(turma_id):  # Verifica se a turma está ativa
+        #         turmas_ativas += 1
+        
+        messagebox.showinfo("Turmas na Filial", f"Existem {turmas_ativas} turmas ativas na filial '{nome_filial}'.")
         show_turma_por_filiais()
 
 def show_tela_cadastro_admin():
@@ -767,14 +805,22 @@ def show_tela_cadastro_admin():
     botao_adicionar_curso = tk.Button(root, text="Adicionar", command= lambda: send_append_curso_prof(cursos_var.get()))
     botao_adicionar_curso.grid(row=4,column=1,padx=10,pady=10)
 
-    filiais = ["(Selecione uma Filial)", "Filial1", "Filial2","Filial3","Filial4","Filial5"]
+    codigo_retorno, filiais = filial.get_filiais()
+
+    if codigo_retorno == 0:  # Verifica se a operação foi realizada com sucesso
+        nomes_filiais = [filial['nome'] for filial in filiais]
+        nomes_filiais.insert(0, "(Selecione uma Filial)")
+
+    else:
+        nomes_filiais = ["Filiais não encontradas"] 
+
     filiais_var = tk.StringVar(root)
-    filiais_var.set(filiais[0])  # Definir valor padrão como vazio
+    filiais_var.set(nomes_filiais[0])  # Definir valor padrão como vazio
 
     label_filiais=tk.Label(root,text="Filiais Possíveis:")
     label_filiais.grid(row=5,column=0,padx=10,pady=10)
 
-    menu_filiais = tk.OptionMenu(root, filiais_var, *filiais)
+    menu_filiais = tk.OptionMenu(root, filiais_var, *nomes_filiais)
     menu_filiais.grid(row=5, column=1, padx=10, pady=10)
 
     botao_adicionar_filial = tk.Button(root, text="Adicionar", command= lambda: send_append_filial_prof(filiais_var.get()))
@@ -892,11 +938,17 @@ def show_tela_filiais_admin():
     label_apagar_filial.grid(row=2,column=0, padx=10, pady=10)
 
     #as filiais devem ser puxadas pelo módulo filial via filial.get_filiais()
-    filiais = ["(Selecione uma Filial)", "Tijuca", "Botafogo", "Freguesia", "Vila Isabel", "Ipanema"]
-    filiais_var = tk.StringVar(root)
-    filiais_var.set(filiais[0])  # Definir valor padrão como vazio
+    codigo_retorno, filiais = filial.get_filiais()
 
-    menu_filiais = tk.OptionMenu(root, filiais_var, *filiais)
+    if codigo_retorno == 0:  # Verifica se a operação foi realizada com sucesso
+        nomes_filiais = [filial['nome'] for filial in filiais]
+        nomes_filiais.insert(0, "(Selecione uma Filial)")
+    else:
+        nomes_filiais = ["Filiais não encontradas"]
+    filiais_var = tk.StringVar(root)
+    filiais_var.set(nomes_filiais[0])  # Definir valor padrão como vazio
+
+    menu_filiais = tk.OptionMenu(root, filiais_var, *nomes_filiais)
     menu_filiais.grid(row=2, column=1, padx=10, pady=10)
     
     botao_deletar = tk.Button(root, text="Deletar", command= lambda: send_del_filial(filiais_var.get()))
@@ -918,45 +970,60 @@ def show_tela_criar_filial():
     entrada_nome = tk.Entry(root)
     entrada_nome.grid(row=1, column=1, padx=10, pady=10)
 
-    label_bairro= tk.Label(root, text="Bairro:")
-    label_bairro.grid(row=1,column=0, padx=10, pady=10)
+    label_bairro = tk.Label(root, text="Bairro:")
+    label_bairro.grid(row=2, column=0, padx=10, pady=10)
 
     entrada_bairro = tk.Entry(root)
-    entrada_bairro.grid(row=1, column=1, padx=10, pady=10)
+    entrada_bairro.grid(row=2, column=1, padx=10, pady=10)
 
-    botao_criar = tk.Button(root, text="Criar", command= lambda: send_add_filial(entrada_nome.get(),entrada_bairro.get()))
-    botao_criar.grid(row=2,column=1,padx=10,pady=10)
+    botao_criar = tk.Button(root, text="Criar", command=lambda: send_add_filial(entrada_nome.get(), entrada_bairro.get()))
+    botao_criar.grid(row=3, column=1, padx=10, pady=10)
 
     botao_voltar = tk.Button(root, text="Voltar", command=show_tela_filiais_admin)
-    botao_voltar.grid(row=2,column=0,padx=10,pady=10)
+    botao_voltar.grid(row=3, column=0, padx=10, pady=10)
 
-def send_add_filial(nome,bairro):
-    #agora basta chamar a função do modulo filial
-    #erro = filial.add_filial(nome,bairro)
-    #baseado na conclusão da ação, se o status for OK, retornamos voltamos a tela de inicio normal
-    #caso não, chamaremos futuramente a mensagem de erro do módulo de Erro coerente com o numero de erro retornado
+def send_add_filial(nome, bairro):
+    try:
+        erro = filial.add_filial(nome, bairro)
+        
+        if erro == 0:  # Assumindo que 0 indica sucesso
+            messagebox.showinfo("Concluído", f"A filial {nome} foi criada.")
+            show_tela_principal_admin()
+        else:
+            messagebox.showerror("Erro", f"Erro ao adicionar a filial. Código de erro: {erro}")
+        
+    except Exception as e:
+        messagebox.showerror("Erro", f"Ocorreu um erro ao adicionar a filial: {str(e)}")
 
-    messagebox.showinfo("Concluido", f"A filial {nome} foi Criada.")
-    show_tela_criar_filial()
-
-def send_del_filial(id_filial):
-    if id_filial == "(Selecione uma Filial)":
-        messagebox.showinfo("Informação Inválida", "Você não selecionou uma Filial.")
+def send_del_filial(nome_filial):
+    if nome_filial == "(Selecione uma Filial)":
+        messagebox.showinfo("Informação Inválida", "Você não selecionou uma Filial válida.")
         show_tela_filiais_admin()
     else:
-        resultado = messagebox.askyesno("Aviso", "Deseja deletar esta Filial?")
-        if resultado:
-            #aqui será a chamada da função do modulo filial
-            #erro = filial.del_filial(id_filial)
-            #baseado na conclusão da ação, se o status for OK, retornamos voltamos a tela de inicio normal
-            #caso não, chamaremos futuramente a mensagem de erro do módulo de Erro coerente com o numero de erro retornado
-
-            #AVISO: filial so deve ser apagado do módulo Filial, mesmo continuando existindo no módulo Aulas
-            #isso é importante para preservar o monitoramento do histórico mesmo de filiais extintas
-            show_tela_filiais_admin()
-            messagebox.showinfo("Filial Deletada", "A filial foi deletada.")
+        codigo, filiais = filial.get_filiais()
+        if codigo == 0:  
+            id_filial = None
+            for f in filiais:
+                if f['nome'] == nome_filial:
+                    id_filial = f['id']
+                    break
         else:
-            show_tela_filiais_admin()
+            messagebox.showerror("Erro", "Código:", codigo)
+            return
+
+        if id_filial is None:
+            messagebox.showerror("Erro", f"Não foi possível encontrar a filial com o nome '{nome_filial}'.")
+        else:
+            resultado = messagebox.askyesno("Aviso", f"Deseja deletar a filial '{nome_filial}' com ID {id_filial}?")
+            if resultado:
+                status = filial.del_filial(id_filial)  # Chama a função del_filial do módulo filial.py
+                if status == 0:  # Operação realizada com sucesso
+                    show_tela_filiais_admin()
+                    messagebox.showinfo("Filial Deletada", f"A filial '{nome_filial}' foi deletada.")
+                else:
+                    messagebox.showerror("Erro", "Ocorreu um erro deletar a filial.", status)
+            else:
+                show_tela_filiais_admin()
 
 def show_tela_formacoes_admin():
     for widget in root.winfo_children():
