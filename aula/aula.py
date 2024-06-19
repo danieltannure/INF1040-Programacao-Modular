@@ -143,4 +143,3 @@ def get_filial_por_turma(turma_id: int) -> tuple:
     except Exception as e:
         return ERRO_DESCONHECIDO,[]
 
-print(get_turmas_por_filial(1))
