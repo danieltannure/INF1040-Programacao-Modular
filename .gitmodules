@@ -4,12 +4,6 @@
 [submodule "cadastro"]
 	path = cadastro
 	url = https://github.com/bathwaterpizza/cadastro
-[submodule "filial"]
-	path = filial
-	url = https://github.com/felipefortinif/filial/
-[submodule "aula"]
-	path = aula
-	url = https://github.com/felipefortinif/aula/
 [submodule "turma"]
 	path = turma
 	url = https://github.com/bathwaterpizza/turma
