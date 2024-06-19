@@ -574,7 +574,7 @@ def send_atualizar_calendario():
 
 def send_obter_turmas():
     #futuramente aqui você deve puxar do módulo  o dicionário = turma.get_turmas()
-    #e ai pega do módulo aulas o dicionario = aula.get_aulas()
+    #e ai pega do módulo aulas o dicionario = filialturma.get_aulas()
     #junte os dois dicionários pra ficar igual a do exemplo abaixo:
     return [
         {"id": 1, "is_online": False, "data_ini": datetime(2024, 6, 1), "duracao_semanas": 4, "horario": {"ini": 9, "fim": 11}, "filial": 1},
@@ -751,7 +751,7 @@ def send_turmas_por_filiais(nome_filial):
             return
 
         # Obter turmas da filial através do módulo aula
-        codigo_turmas, turmas = aula.get_turmas_por_filial(id_filial)
+        codigo_turmas, turmas = filialturma.get_turmas_por_filial(id_filial)
         if codigo_turmas != 0:
             messagebox.showerror("Erro", f"Código de erro: {codigo_turmas}")
             return
@@ -1563,7 +1563,7 @@ def show_tela_opcoes_professor():
     #depois disso basta caçar todas as turmas e suas respectivas informações
     #faz um for pra cada curso do professor e usa o módulo assunto pra pegar as turmas  possíveis assunto.get_turmas_by_curso(dic_prof["cursos"][i])
     #crie um item de lista para cada uma das turmas encontradas e guarde seu id e o id do curso, por fim guarde todos esse itens numa lista, formando uma matriz
-    #para cada uma dessas turmas selecionada verifica quais filiais elas são a partir do módulo aula aula.get_filial_by_turma(id_turma)
+    #para cada uma dessas turmas selecionada verifica quais filiais elas são a partir do módulo aula filialturma.get_filial_by_turma(id_turma)
     #percorra um for para verificar se a filial encontrada nao bate com nenhuma das filiais do professor, se nao bater descarte-a
     #caso seja, adicione em cada item de lista respectivo o id da filial
     #por fim, compare o horario de inicio e fim com o horario do professor, para acessar o de cada turma, basta usar o modulo turma erro,dic_turma= turma.get_turma(id_turma)
