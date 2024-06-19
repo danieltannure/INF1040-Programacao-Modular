@@ -1,0 +1,15 @@
+53 - avaliação já existe no critério
+
+54 - avaliação não encontrada no critério
+
+55 - critério não encontrado
+
+52 - avaliação com id_avaliacao não encontrada para criar uma resposta 
+
+13 - resposta (avaliação) não achada na busca com id_aluno e id_avaliacao
+
+14 - resposta (avaliação) não achada na busca com id_aluno
+
+15 - resposta (avaliação) não achada na busca com id_avaliacao
+
+56 - avaliação tem de ter o mesmo número de perguntas e respostas
