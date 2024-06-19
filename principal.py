@@ -1,5 +1,4 @@
 #bibliotecas
-import sys
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import scrolledtext
@@ -8,9 +7,11 @@ from datetime import datetime, timedelta
 #bibliotecas para montar o calendário
 from tkinter import ttk
 import calendar
-#módulos
+
+# Módulos
+# Apenas o mensagens fica nesse formato, pra não precisar do prefixo mensagens. nos erros
+# Para o resto, use: from . import modulo
 from .mensagens import *
-from . import cadastro
 
 # Variáveis globais de registro da sessão
 #Globais Aluno
@@ -111,80 +112,42 @@ def show_tela_cadastro():
     botao_voltar_login.grid(row=4,column=0, columnspan=1, pady=10)
 
 def send_add_conta(usuario,senha,bairro,ini,fim):
-    if bairro == "(Selecione o Bairro)":
-        messagebox.showerror("Bairro Inválido", "Selecione um Bairro")
-        show_tela_cadastro()
-    else:
-        #testa se ini é convertivel pra int
-        try:
-            valor_ini= int(ini)
-            #testa se fim é convertivel pra int
-            try:
-                valor_fim=int(fim)
-                if valor_ini < valor_fim:
-                    #aqui deve ter do modulo aluno um add_aluno que pega bairro,ini,fim e cria um aluno e retorna uma id única
-                    id_usuario = 1
-                    erro= cadastro.add_cadastro(usuario, senha, id_usuario, "aluno")
-                    if erro[0] != 0:
-                        messagebox.showerror("Erro", f"{get_msg_status(erro[0])}")
-                        show_tela_cadastro()
-                    else:
-                        messagebox.showinfo("Cadastro Concluido", "Sua conta foi criada.")
-                        show_tela_login()
-                else:
-                    messagebox.showerror("Intervalo Inválido","Insira o intervalo de disponibilidade corretamente")
-                    show_tela_cadastro()
-            except ValueError:
-                messagebox.showerror("Numero Inválido","Insira um número para o fim corretamente.")
-                show_tela_cadastro()
-        except ValueError:
-            messagebox.showerror("Numero Inválido","Insira um número para o início corretamente.")
-            show_tela_cadastro()
+    #futuramente vai chamar a função de acesso do módulo cadastro (add_cadastro_aluno)
+    #que vai adicionar usuario - idaluno e isso vai criar o aluno com o add_aluno
+    #baseado na conclusão da ação, se o status for OK, retornamos voltamos a tela de inicio normal
+    messagebox.showinfo("Cadastro Concluido", "Sua conta foi criada.")
+    #caso não, chamaremos futuramente a mensagem de erro do módulo de Erro coerente com o numero de erro retornado
+    show_tela_login()
+    return
 
 def get_credenciais(usuario, senha):
-    #pega o id do usuário que está entrando numa sessão
-    erro, id_usuario= cadastro.login(usuario,senha)
-    if erro != 0:
-        messagebox.showerror("Erro", f"{get_msg_status(erro)}")
-        show_tela_login()
-    else:
-    
-        #checa se ele é admin
-        erro,check_admin= cadastro.is_admin(usuario)
-        if erro != 0:
-            messagebox.showerror("Erro", f"{get_msg_status(erro)}")
-            show_tela_login()
-        elif check_admin:
-            show_tela_principal_admin()
-            print("eba")
 
-        #checa se ele é aluno
-        erro,check_aluno= cadastro.is_aluno(usuario)
-        if erro != 0:
-            messagebox.showerror("Erro", f"{get_msg_status(erro)}")
-            show_tela_login()
-        elif check_aluno:
-            show_tela_principal_aluno()
-            #guarda o id_aluno que está sendo usado
-            global aluno_da_sessao
-            aluno_da_sessao = id_usuario
-        
-        #checa se ele é professor
-        erro,check_professor=cadastro.is_professor(usuario)
-        if erro != 0:
-            messagebox.showerror("Erro", f"{get_msg_status(erro)}")
-            show_tela_login()
-        elif check_professor:
-            show_tela_principal_professor()
-            #guarda o id_professor que está sendo usado
-            global professor_da_sessao
-            professor_da_sessao = id_usuario
-   
-def send_sair():
-    for widget in root.winfo_children():
-        widget.destroy()
-    #salva todas as modificações feitas no json
-    sys.exit()
+    if usuario == "admin" and senha == "senha123":
+        messagebox.showinfo("Login bem-sucedido", "Bem-vindo!")
+        show_tela_principal_admin()
+
+    #Futuramente checar com usuarios existentes, para id's de aluno no sistema
+    #if status == 0 , prossegue
+    elif usuario == "aluno" and senha == "senha123":
+        #guardar numa variável o id do aluno logado aluno_da_sessao
+        global aluno_da_sessao
+        aluno_da_sessao = None
+        messagebox.showinfo("Login bem-sucedido", "Bem-vindo Aluno!")
+        show_tela_principal_aluno()
+
+
+    #Futuramente checar com usuarios existentes, para id's de professor no sistema
+    #if status == 0 , prossegue
+    elif usuario == "professor" and senha == "senha123":
+        #guardar numa variável o id do professor logado professor_da_sessao
+        global professor_da_sessao 
+        professor_da_sessao = None
+        messagebox.showinfo("Login bem-sucedido", "Bem-vindo Professor!")
+        show_tela_principal_professor()
+
+    else:
+        messagebox.showerror("Erro", "Credenciais inválidas")
+
 
 #Sessão: Admin
 def show_tela_principal_admin():
@@ -206,14 +169,14 @@ def show_tela_principal_admin():
     botao_criterio = tk.Button(root,height=5, text="Gerir Critérios", command=show_tela_criterio_admin)
     botao_criterio.grid(row=1, rowspan=2, column=3,padx=10, pady=10)
 
-    botao_cadastros = tk.Button(root,height=5, text="Gerir Cadastros", command=show_tela_criacadastro_admin)
+    botao_cadastros = tk.Button(root,height=5, text="Gerir Cadastros", command=show_tela_cadastro_admin)
     botao_cadastros.grid(row=1, rowspan=2, column=4,padx=10, pady=10)
 
     botao_levantamentos = tk.Button(root,height=5, text="Mostrar Levantamentos", command=show_tela_levantamentos_admin)
     botao_levantamentos.grid(row=1, rowspan=2, column=5,padx=10, pady=10)
 
 
-    botao_logout = tk.Button(root, text="Logout", command=send_sair)
+    botao_logout = tk.Button(root, text="Logout", command=show_tela_login)
     #WARNING: na aplicação final não deve-se retornar para a tela login, e sim para uma função que feche o sistema e salve tudo
     botao_logout.grid(row=3,column=0,padx=10,pady=10)
 
@@ -730,7 +693,7 @@ def send_turmas_por_filiais(id_filial):
         messagebox.showinfo("Turmas na Filial",f"Existem x Turmas na filial {id_filial}")
         show_turma_por_filiais()
 
-def show_tela_criacadastro_admin():
+def show_tela_cadastro_admin():
     for widget in root.winfo_children():
         widget.destroy()
 
@@ -751,6 +714,11 @@ def show_tela_criacadastro_admin():
     #WARNING: so cadastros de PROFESSORES podem ser criados
 
     #os cursos devem ser puxadas pelo módulo cadastro via curso.get_cursos()
+
+    #limpa as listas para receberem os cursos e filiais que o professor que está sendo criado pode lecionar/estar
+    global lista_cursos_aptos,lista_filiais_aptas
+    lista_cursos_aptos=[]
+    lista_filiais_aptas=[]
 
     cursos = ["(Selecione um Curso)", "Curso1", "Curso2","Curso3","Curso4","Curso5"]
     cursos_var = tk.StringVar(root)
@@ -778,83 +746,67 @@ def show_tela_criacadastro_admin():
     botao_adicionar_filial = tk.Button(root, text="Adicionar", command= lambda: send_append_filial_prof(filiais_var.get()))
     botao_adicionar_filial.grid(row=6,column=1,padx=10,pady=10)
 
-    label_disponibilidade = tk.Label(root, text="Disponibilidade:  Das")
-    label_disponibilidade.grid(row=7, column=0, padx=10, pady=10)
+    botao_voltar = tk.Button(root, text="Criar Cadastro", command= lambda: send_cria_cadastro_admin(entrada_usuario.get(),entrada_senha.get(),lista_cursos_aptos,lista_filiais_aptas))
+    botao_voltar.grid(row=7,column=1,padx=10,pady=10)
 
-    entrada_horario_inicio = tk.Entry(root)
-    entrada_horario_inicio.grid(row=7, column=1, padx=10, pady=10)
+    label_alt= tk.Label(root, text=f"Alterar Cadastro")
+    label_alt.grid(row=8,column=0,padx=10,pady=10)
+    #os users devem ser puxadas pelo módulo cadastro via cadastro.get_users()
+    #os users com flag "professor" devem aparecer, o restante não
+    users = ["(Selecione um Usuário)", "User1", "User2","User3","User4","User5"]
+    users_var = tk.StringVar(root)
+    users_var.set(users[0])  # Definir valor padrão como vazio
 
-    label_fim = tk.Label(root, text="às")
-    label_fim.grid(row=7, column=2, padx=10, pady=10)
+    label_user=tk.Label(root,text="Selecione um Usuário:")
+    label_user.grid(row=9,column=0,padx=10,pady=10)
 
-    entrada_horario_fim = tk.Entry(root)
-    entrada_horario_fim.grid(row=7, column=3, padx=10, pady=10)
+    menu_users = tk.OptionMenu(root, users_var, *users)
+    menu_users.grid(row=9, column=1, padx=10, pady=10)
 
-    botao_voltar = tk.Button(root, text="Criar Cadastro", command= lambda: send_cria_cadastro_admin(entrada_usuario.get(),entrada_senha.get(),lista_cursos_aptos,lista_filiais_aptas,entrada_horario_inicio.get(),entrada_horario_fim.get()))
-    botao_voltar.grid(row=8,column=3,padx=10,pady=10)
+
+    label_senhaalt=tk.Label(root,text="Nova Senha:")
+    label_senhaalt.grid(row=10,column=0,padx=10,pady=10)
+
+    entrada_senhaalt= tk.Entry(root,show="*")
+    entrada_senhaalt.grid(row=10,column=1,padx=10,pady=10)
+
+    botao_alterar = tk.Button(root, text="Alterar Senha", command= lambda: send_altera_senha_cadastro(users_var.get(),entrada_senhaalt.get()))
+    botao_alterar.grid(row=11,column=1,padx=10,pady=10)
     
     botao_voltar = tk.Button(root, text="Voltar", command=show_tela_principal_admin)
-    botao_voltar.grid(row=8,column=0,padx=10,pady=10) 
+    botao_voltar.grid(row=11,column=0,padx=10,pady=10) 
 
 def send_append_curso_prof(id_curso):
     if id_curso == "(Selecione um Curso)":
         messagebox.showerror("Erro","Você não selecionou um Curso.")
-        show_tela_criacadastro_admin()
+        show_tela_cadastro_admin()
     else:
         global lista_cursos_aptos
         lista_cursos_aptos.append(id_curso)
-        show_tela_criacadastro_admin()
+        show_tela_cadastro_admin() 
 
 def send_append_filial_prof(id_filial):
-    if id_filial == "(Selecione uma Filial)":
+    if id_filial == "(Selecione Uma Filial)":
         messagebox.showerror("Erro","Você não selecionou uma Filial.")
-        show_tela_criacadastro_admin()
+        show_tela_cadastro_admin()
     else:
         global lista_filiais_aptas
         lista_filiais_aptas.append(id_filial)
-        show_tela_criacadastro_admin()
+        show_tela_cadastro_admin()
 
-def send_cria_cadastro_admin(usuario,senha,cursos,filiais,ini,fim):
-    if not cursos:
-        messagebox.showerror("Sem Cursos","Professor não tem cursos aptos.")
-        show_tela_criacadastro_admin()
-    else:
-        if not filiais:
-            messagebox.showerror("Sem Filial.","Professor não tem filial disponível.")
-            show_tela_criacadastro_admin()
-        else:
-            try:
-                valor_ini= int(ini)
-                try:
-                    valor_fim=int(fim)
-                    if valor_ini<valor_fim:
-                        #cursos e filiais é pra adicionar na entidade professor correspondente o id que sera relacionado 
-                        #teste do append apenas (pode excluir no final)
-                        print(f"{cursos}")
-                        print(f"{filiais}")
-                        horario={"ini":valor_ini,"fim":valor_fim}
-                        #aqui deve ser iniciado o add_professor do modulo professor onde ele pegaria cursos filiais horario e geraria um id novo 
-                        id_usuario=2
-                        erro= cadastro.add_cadastro(usuario,senha,id_usuario,"professor")
-                        if erro[0] != 0:
-                            messagebox.showerror("Erro",f"Erro: {get_msg_status(erro[0])}")
-                            show_tela_criacadastro_admin()
-                        else:
-                            messagebox.showinfo("Cadastro Concluido","Novo Professor já foi credenciado.")
+def send_cria_cadastro_admin(usuario,senha,cursos,filiais):
+    #basicamente chama a função do módulo cadastro cadastro.add_castro(usuario,senha,"professor")
+    #e ele criara um id correspondente a conta
+    #IDEIA: cursos e filiais é pra adicionar na entidade professor correspondente o id que sera relacionado com o cadastro um professor.add_professor ou set
+    messagebox.showinfo("Cadastro Concluido","Novo Professor já foi credenciado.")
+    show_tela_cadastro_admin()
 
-                            #limpa as listas para receberem os cursos e filiais que o professor que está sendo criado pode lecionar/estar
-                            global lista_cursos_aptos,lista_filiais_aptas
-                            lista_cursos_aptos=[]
-                            lista_filiais_aptas=[]
+def send_altera_senha_cadastro(user,senha):
+    #basicamente vai chama a função do módulo cadastro e usa cadastro.set_senha(user,senha)
+    #serve para caso alguem esqueça ou pare de trabalhar e precisa ser retirado do acesso a conta
+    messagebox.showinfo("Senha Alterada", f"A senha do usuario {user} foi alterada.")
+    show_tela_cadastro_admin()
 
-                            show_tela_criacadastro_admin()  
-                    else:
-                        messagebox.showerror("Error","Intervalo de disponibilidade inválido")   
-                except ValueError:
-                     messagebox.showerror("Numero Inválido","Numero de horário final incorreto.")
-            except ValueError:
-                messagebox.showerror("Numero Inválido","Numero de horário inicial incorreto.")
-            
 def show_tela_filiais_admin():
     for widget in root.winfo_children():
         widget.destroy()
@@ -1063,7 +1015,7 @@ def show_tela_principal_aluno():
     botao_formacao = tk.Button(root,height=5, text="Formacoes", command=show_tela_formacoes_aluno)
     botao_formacao.grid(row=1, rowspan=2, column=3,padx=10, pady=10)
 
-    botao_logout = tk.Button(root, text="Logout", command=send_sair)
+    botao_logout = tk.Button(root, text="Logout", command=show_tela_login)
     #WARNING: na aplicação final não deve-se retornar para a tela login, e sim para uma função que feche o sistema e salve tudo
     botao_logout.grid(row=3,padx=10,pady=10)
 
@@ -1459,7 +1411,7 @@ def show_tela_principal_professor():
     botao_cursos = tk.Button(root,height=5, text="Turmas Ativas", command=show_tela_turmas_professor)
     botao_cursos.grid(row=1, rowspan=2, column=1,padx=10, pady=10)
 
-    botao_logout = tk.Button(root, text="Logout", command=send_sair)
+    botao_logout = tk.Button(root, text="Logout", command=show_tela_login)
     #WARNING: na aplicação final não deve-se retornar para a tela login, e sim para uma função que feche o sistema e salve tudo
     botao_logout.grid(row=3,padx=10,pady=10)
 
@@ -1698,10 +1650,8 @@ def send_set_avaliacao(id_avaliacao,nome,tipo,id_turma,id_prof,gabarito,pergunta
 root = tk.Tk()
 root.title("Plataforma de Ensino")
 
-# Mostra  a tela de login inicialmente e cria login do admin
-cadastro.add_cadastro("admin", "admin", -1, "admin")
+# Mostra  a tela de login inicialmente
 show_tela_login()
-
 
 # Iniciar o loop principal da interface gráfica
 root.mainloop()

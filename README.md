@@ -12,9 +12,11 @@
 
 ### Executando
 
-`cd (...)/principal`
+Seu diretório no terminal deve ser um acima do principal:
 
-`python -m principal`
+`cd (pasta parente do principal)/`
+
+`python -m principal.principal`
 
 ### Adicionando um submódulo
 
