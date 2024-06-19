@@ -21,6 +21,7 @@ from . import filial
 from . import filialturma
 from . import avaliacao
 from . import criterio
+from . import respostas
 
 # Variáveis globais de registro da sessão
 # Globais Aluno
