@@ -38,9 +38,9 @@ def add_avaliacao_ao_criterio(id_curso: int, id_avaliacao: int) -> int:
     Caso a instância de dicionário referente ao criterio não exista -> cria uma nova instância de dicionário e adiciona o id_avaliacao no criterio
     """
 
-    # checa_curso_e_avaliacao = existe_curso_e_avaliacao(id_curso, id_avaliacao)
-    # if checa_curso_e_avaliacao != 0:
-    #  return checa_curso_e_avaliacao
+    checa_curso_e_avaliacao = existe_curso_e_avaliacao(id_curso, id_avaliacao)
+    if checa_curso_e_avaliacao != 0:
+      return checa_curso_e_avaliacao
 
     for criterio in criterios:
         if criterio["curso"] == id_curso:
@@ -70,9 +70,9 @@ def del_avaliacao_do_criterio(id_curso: int, id_avaliacao: int) -> int:
     Caso o criterio não exista -> retorna o código de erro 55
     """
 
-    # checa_curso_e_avaliacao = existe_curso_e_avaliacao(id_curso, id_avaliacao)
-    # if checa_curso_e_avaliacao != 0:
-    #  return checa_curso_e_avaliacao
+    checa_curso_e_avaliacao = existe_curso_e_avaliacao(id_curso, id_avaliacao)
+    if checa_curso_e_avaliacao != 0:
+      return checa_curso_e_avaliacao
 
     for criterio in criterios:
         if criterio["curso"] == id_curso:
