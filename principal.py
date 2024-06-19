@@ -20,7 +20,7 @@ from . import cadastro
 from . import filial
 from . import filialturma
 from . import avaliacao
-from . import criterio
+from . import avaliacao_curso
 from . import respostas
 
 # Variáveis globais de registro da sessão
