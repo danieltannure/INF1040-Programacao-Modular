@@ -986,7 +986,7 @@ def send_media(id_avaliacao):
             messagebox.showinfo("Média da Avaliação", f"A media da avaliação {id_avaliacao} foi de {media}")
             show_media_avaliacao()
         else:
-            messagebox.showerror("Error", "Nenhuma resposta foi encontrada para esta avaliação.")
+             messagebox.showerror("Erro", f"{get_msg_status(erro[0])}")
             show_media_avaliacao()
 
 def show_turma_por_filiais():
@@ -1834,8 +1834,7 @@ def send_get_resposta_by_aluno(id_avaliacao, id_aluno, id_turma):
             nota = dic_resposta["nota"]
             messagebox.showinfo("Resultado", f"Sua nota é {nota}.")
         else:
-            # tratar erro aqui
-            pass
+            msg_send(codigo_retorno)
         show_tela_avaliacoes_aluno(id_turma)
 
 
