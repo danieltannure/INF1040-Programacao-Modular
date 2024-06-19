@@ -1,1 +1,1 @@
-from .criterio import *
+from .avaliacao_curso import *
