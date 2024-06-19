@@ -1,136 +1,107 @@
-# Gerenciamento de Formações
+# Como utilizar
 
-Este módulo em Python gerencia uma lista de formações, permitindo adicionar, deletar e consultar formações. Os dados são persistidos em um arquivo JSON.
+No diretório imediatamente acima do seu módulo, execute:
 
-## Funcionalidades
+`git clone https://github.com/Danielbano1/formacao`
 
-O módulo expõe as seguintes funções:
+Depois você pode utilizar as funções de formacao com o import:
 
-- `inicializar()`
-- `finalizar()`
-- `get_formacao(id)`
-- `get_formacoes()`
-- `add_formacao(nome, cursos)`
-- `del_formacao(id)`
+```Python
+from .. import formacao
 
-## Variáveis Globais
+formacao.get_formacao(25)
+```
 
-- `lista_formacoes`: Lista de formações ativas.
-- `formacoes_deletadas`: Lista de formações deletadas.
-- `PATH`: Caminho do arquivo JSON onde os dados são armazenados.
+**OBS:** Para utilizar imports relativos, seu módulo também precisa fazer parte de um package, ou seja, o diretório do módulo deve possuir um arquivo `__init__.py` assim como o nosso.
 
-## Códigos de Erro
+Alternativamente, se o diretório acima do seu módulo também for um repositório, como o principal, você pode adicionar formacao como submódulo:
 
-- `OPERACAO_REALIZADA_COM_SUCESSO = 0`
-- `ARQUIVO_NAO_ENCONTRADO = 30`
-- `ARQUIVO_EM_FORMATO_INVALIDO = 31`
-- `ERRO_NA_ESCRITA_DO_ARQUIVO = 32`
-- `FORMACAO_NAO_ENCONTRADO = 40`
-- `FORMACAO_JA_EXISTE = 41`
-- `FORMACAO_NAO_ATIVO = 42`
+`git submodule add https://github.com/Danielbano1/formacao`
 
-## Funções
+## Dependências
 
-### `inicializar() -> int`
+Python 3.9+
 
-Carrega os dados do arquivo JSON para as variáveis globais `lista_formacoes` e `formacoes_deletadas`.
+# Documentação adicional
 
-**Retorna:**
-- `OPERACAO_REALIZADA_COM_SUCESSO` (0) se a operação foi bem-sucedida.
-- `ARQUIVO_NAO_ENCONTRADO` (30) se o arquivo não foi encontrado.
-- `ARQUIVO_EM_FORMATO_INVALIDO` (31) se o arquivo JSON está em formato inválido.
+O módulo possui um endereço de um arquivo fixo para registro da base de dados em memória persistente, inacessivel ao cliente.
+O módulo usa um espaço em memória de acesso rápido para guardar o banco de dados para o uso das funcionalidades do módulo. Esta posição de memória também é inacessível ao cliente.
 
-### `finalizar() -> int`
+## inicializar
 
-Salva os dados das variáveis globais `lista_formacoes` e `formacoes_deletadas` no arquivo JSON.
+Esta função realiza a leitura da base de dados na memória persistente para um espaço de acesso rápido a ser usado pelas outras funções. A memória de acesso rápido acessada é fixa e qualquer informação previamente armazenada será perdida.
 
-**Retorna:**
-- `OPERACAO_REALIZADA_COM_SUCESSO` (0) se a operação foi bem-sucedida.
-- `ERRO_NA_ESCRITA_DO_ARQUIVO` (32) se houve erro na escrita do arquivo.
+### Requisitos
 
-### `get_formacao(id: int) -> tuple[int, dict]`
+- Retorna ARQUIVO_NAO_ENCONTRADO caso não encontre o arquivo de leitura
+- Retorna ARQUIVO_EM_FORMATO_INVALIDO caso encontre o arquivo de leitura, mas não seja capaz de fazer a leitura
+- Retorna OPERACAO_REALIZADA_COM_SUCESSO caso faça a leitura com sucesso
+- Não avalia a integridade do conteudo lido e sua compatibilidade com as aplicações que o usarão
 
-Recupera uma formação pelo seu ID.
+## finalizar
 
-**Parâmetros:**
-- `id`: Identificador da formação.
+Esta função realiza o registro da base de dados em memória de acesso rápido sendo usada pelo módulo no arquivo resignado pelo módulo. Qualquer conteudo prévio no arquivo será sobrescrito.
 
-**Retorna:**
-- Tupla contendo o código de erro e a formação (ou `None` se não encontrada).
+### Requisitos
 
-### `get_formacoes() -> tuple[int, list[dict]]`
+- Retorna ERRO_NA_ESCRITA_DO_ARQUIVO caso não seja capaz de fazer a escrita
+- Retorna OPERACAO_REALIZADA_COM_SUCESSO caso faça a escrita com sucesso
 
-Recupera todas as formações ativas.
+## get_formacao
 
-**Retorna:**
-- Tupla contendo o código de erro e a lista de formações ativas.
+Esta função recebe um valor de inteiro em seu parâmetro e busca na base de dados do módulo um formacao cujo "id" corresponda ao valor. Esta função retorna uma tupla com uma mensagem de erro seguida de um dicionário com as informações da formacao buscado na base de dados caso encontrado ou seguida de None caso contrário.
 
-### `add_formacao(nome: str, cursos: list[int]) -> tuple[int, int]`
+### Requisitos
 
-Adiciona uma nova formação.
+- Retorna uma tupla com a mensagem FORMACAO_NAO_ENCONTRADO e None, em seqência, caso não encontre um formacao cujo "id" corresponda ao valor em parametro
+- Retorna uma tupla com a mensagem FORMACAO_NAO_ATIVO e um dicionário com as informações da base de dados referentes aa formacao cuja "id" corresponda ao valor em parâmetro, caso tal formacao seja encontrado e esteja listado como um formacao desativado
+- Retorna uma tupla com a mensagem OPERACAO_REALIZADA_COM_SUCESSO e um dicionário com as informações da base de dados referentes aa formacao cuja "id" corresponda ao valor em parâmetro, caso tal formacao seja encontrado e não esteja listado como um formacao desativado
 
-**Parâmetros:**
-- `nome`: Nome da formação.
-- `cursos`: Lista de IDs de cursos associados.
+### Acoplamento
 
-**Retorna:**
-- Tupla contendo o código de erro e o ID da nova formação.
+- id: int
+  Variável a ser buscada na base de dados como "id" da formacao
 
-### `del_formacao(id: int) -> tuple[int, int]`
+## get_formacoes
 
-Deleta uma formação pelo seu ID.
+Esta função retorna uma tupla com uma mensagem de erro seguida de uma lista de dicionários com todas as informações de todos as formacoes ativas no banco de dados do módulo.
 
-**Parâmetros:**
-- `id`: Identificador da formação.
+### Requisitos
 
-**Retorna:**
-- Tupla contendo o código de erro e o ID da formação deletada.
+- Retorna uma tupla com a mensagem OPERACAO_REALIZADA_COM_SUCESSO e uma lista de dicionários com todas as informações de todos as formacoes registradas na base de dados como formacoes ativas
 
-## Funções Internas
+## add_formacao
 
-### `exibe_formacao(id)`
+Esta função recebe em seus parâmetros um nome e uma lista de ids de cursos, em sequência. Esta função busca na base de dados do módulo se existe já um formacao com o nome solicitado. Caso encontre retorna uma tupla com uma mensagem de erro seguida por None, caso contrário é gerado um novo "id" para formacao e um nova formacao é registrado com tal "id" e com as informações fornecidas nos parâmetros na base de dados do módulo, retornando uma tupla com uma mensagem de erro seguida pelo id do nova formacao.
 
-Exibe detalhes de uma formação pelo ID.
+### Requisitos
 
-### `exibe_formacoes() -> int`
+- Retorna uma tupla com a mensagem FORMACAO_JA_EXISTE e None, em sequência, caso encontre um formacao registrado no banco de dados do módulo com "nome" como o informado no primeiro valor dos parâmetros
+- Retorna uma tupla com a mensagem OPERACAO_REALIZADA_COM_SUCESSO e um inteiro correspondente do "id" gerado para o nova formacao registrado
+- Não é realizada nenhuma avaliação dos cursos informados nos parâmetros e seus possíveis efeitos no uso da aplicação
 
-Exibe todas as formações ativas.
+### Acoplamento
 
-## Inicialização e Finalização Automática
+- nome: str
+  Nome para a nova formacao. É único para as formacoes e é usado na busca por repetição nesta função
+- cursos: list[int]
+  Lista com inteiros que correspondem aos "id"s dos cursos componentes desta formacao
 
-O programa carrega os dados ao iniciar e salva os dados ao finalizar utilizando `atexit.register(finalizar)`.
+## del_formacao
 
-## Exemplo de Uso
+Esta função recebe como parâmetro um inteiro e busca, então, na base de dados um formacao ativo com um "id" correspondente. Caso encontre a formacao é registrado como inativo. Retorna uma mensagem de erro o inteiro fornecido nos parâmetros.
 
-```python
-# Inicializar o sistema
-erro = inicializar()
-if erro != OPERACAO_REALIZADA_COM_SUCESSO:
-    print(f"Erro na inicialização: {erro}")
+### Requisitos
 
-# Adicionar uma formação
-erro, id_formacao = add_formacao("Formação Python", [1, 2, 3])
-if erro == OPERACAO_REALIZADA_COM_SUCESSO:
-    print(f"Formação adicionada com ID: {id_formacao}")
+- Retorna uma tupla com a mensagem FORMACAO_NAO_ENCONTRADO e o "id" fornecido nos parâmetros caso não haja um formacao com o "id" informado registrado na base de dados do módulo
+- Retorna uma tupla com a mensagem FORMACAO_NAO_ATIVO e o "id" fornecido nos parâmetros caso haja um formacao com o "id" informado registrado na base de dados do módulo como inativo
+- Retorna uma tupla com a mensagem OPERACAO_REALIZADA_COM_SUCESSO e o "id" fornecido nos parâmetros caso haja um formacao com o "id" informado registrado na base de dados do módulo como ativo
 
-# Exibir formações ativas
-exibe_formacoes()
+### Acoplamento
 
-# Deletar uma formação
-erro, id_formacao = del_formacao(id_formacao)
-if erro == OPERACAO_REALIZADA_COM_SUCESSO:
-    print(f"Formação com ID {id_formacao} deletada")
+- id: int
+  "id" da formacao a ser desativado
 
 
-Estrutura do JSON
-O arquivo JSON (formacao.json) deve ter a seguinte estrutura:
-{
-    "lista_formacoes": [
-        {
-            "id": 1,
-            "nome": "Formação Exemplo",
-            "cursos": [1, 2, 3]
-        }
-    ],
-    "formacoes_deletadas": []
-}
+
+
