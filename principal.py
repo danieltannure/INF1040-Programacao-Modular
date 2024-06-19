@@ -1134,7 +1134,19 @@ def show_tela_cadastro_admin():
     )
     botao_adicionar_filial.grid(row=6, column=1, padx=10, pady=10)
 
-    botao_voltar = tk.Button(
+    label_disponibilidade = tk.Label(root, text="Disponibilidade:  Das")
+    label_disponibilidade.grid(row=7, column=0, padx=10, pady=10)
+
+    entrada_horario_inicio = tk.Entry(root)
+    entrada_horario_inicio.grid(row=7, column=1, padx=10, pady=10)
+
+    label_fim = tk.Label(root, text="às")
+    label_fim.grid(row=7, column=2, padx=10, pady=10)
+
+    entrada_horario_fim = tk.Entry(root)
+    entrada_horario_fim.grid(row=7, column=3, padx=10, pady=10)
+    
+    botao_cadastro = tk.Button(
         root,
         text="Criar Cadastro",
         command=lambda: send_cria_cadastro_admin(
@@ -1142,12 +1154,14 @@ def show_tela_cadastro_admin():
             entrada_senha.get(),
             lista_cursos_aptos,
             lista_filiais_aptas,
+            entrada_horario_inicio.get(),
+            entrada_horario_fim.get()
         ),
     )
-    botao_voltar.grid(row=7, column=1, padx=10, pady=10)
+    botao_cadastro.grid(row=8, column=1, padx=10, pady=10)
 
     label_alt = tk.Label(root, text=f"Alterar Cadastro")
-    label_alt.grid(row=8, column=0, padx=10, pady=10)
+    label_alt.grid(row=9, column=0, padx=10, pady=10)
     # os users devem ser puxadas pelo módulo cadastro via cadastro.get_users()
     # os users com flag "professor" devem aparecer, o restante não
     users = ["(Selecione um Usuário)", "User1", "User2", "User3", "User4", "User5"]
@@ -1155,16 +1169,16 @@ def show_tela_cadastro_admin():
     users_var.set(users[0])  # Definir valor padrão como vazio
 
     label_user = tk.Label(root, text="Selecione um Usuário:")
-    label_user.grid(row=9, column=0, padx=10, pady=10)
+    label_user.grid(row=10, column=0, padx=10, pady=10)
 
     menu_users = tk.OptionMenu(root, users_var, *users)
-    menu_users.grid(row=9, column=1, padx=10, pady=10)
+    menu_users.grid(row=10, column=1, padx=10, pady=10)
 
     label_senhaalt = tk.Label(root, text="Nova Senha:")
-    label_senhaalt.grid(row=10, column=0, padx=10, pady=10)
+    label_senhaalt.grid(row=11, column=0, padx=10, pady=10)
 
     entrada_senhaalt = tk.Entry(root, show="*")
-    entrada_senhaalt.grid(row=10, column=1, padx=10, pady=10)
+    entrada_senhaalt.grid(row=11, column=1, padx=10, pady=10)
 
     botao_alterar = tk.Button(
         root,
@@ -1173,10 +1187,10 @@ def show_tela_cadastro_admin():
             users_var.get(), entrada_senhaalt.get()
         ),
     )
-    botao_alterar.grid(row=11, column=1, padx=10, pady=10)
+    botao_alterar.grid(row=12, column=1, padx=10, pady=10)
 
     botao_voltar = tk.Button(root, text="Voltar", command=show_tela_principal_admin)
-    botao_voltar.grid(row=11, column=0, padx=10, pady=10)
+    botao_voltar.grid(row=12, column=0, padx=10, pady=10)
 
 
 def send_append_curso_prof(id_curso):
