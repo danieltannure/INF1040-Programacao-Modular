@@ -18,12 +18,11 @@ FILIAL_NAO_ENCONTRADA = 33  # Código de retorno para filial não encontrada
 ERRO_DESCONHECIDO = 34  # Código de retorno para erro desconhecido
 BAIRRO_NAO_ENCONTRADO = 35  # Código de retorno para bairro não encontrado
 
-def add_filial(id: int, nome: str, bairro: str) -> int:
+def add_filial(nome: str, bairro: str) -> int:
     """
-    Cria uma nova filial e adiciona ao arquivo JSON de filiais.
+    Cria uma nova filial e adiciona ao arquivo JSON de filiais, utilizando o próximo ID disponível.
 
     Args:
-        id (int): ID da nova filial.
         nome (str): Nome da nova filial.
         bairro (str): Bairro da nova filial.
 
@@ -35,16 +34,15 @@ def add_filial(id: int, nome: str, bairro: str) -> int:
         with open(_FILIAIS_JSON_FILE_PATH, 'r') as file:
             filiais = json.load(file)
 
-        # Verifica se o ID da filial já existe
-        if any(f['id'] == id for f in filiais):
-            return ERRO_DESCONHECIDO  # ou um código específico para ID duplicado
+        # Determina o próximo ID disponível
+        if filiais:
+            proximo_id = max(f['id'] for f in filiais) + 1
+        else:
+            proximo_id = 1  # Se não houver nenhuma filial, começamos com ID 1
 
         # Adiciona a nova filial à lista de filiais
-        filiais.append({
-            'id': id,
-            'nome': nome,
-            'bairro': bairro
-        })
+        nova_filial = {'id': proximo_id, 'nome': nome, 'bairro': bairro}
+        filiais.append(nova_filial)
 
         # Escreve de volta ao arquivo JSON
         with open(_FILIAIS_JSON_FILE_PATH, 'w') as file:
@@ -132,7 +130,7 @@ def get_filiais() -> Tuple[int, List[Dict[str, str]]]:
     try:
         with open(_FILIAIS_JSON_FILE_PATH, 'r') as file:
             filiais = json.load(file)
-        return OPERACAO_REALIZADA_COM_SUCESSO, [{'nome': f['nome'], 'bairro': f['bairro']} for f in filiais]
+        return OPERACAO_REALIZADA_COM_SUCESSO, [{'id': f['id'], 'nome': f['nome'], 'bairro': f['bairro']} for f in filiais]
     except FileNotFoundError:
         return ARQUIVO_NAO_ENCONTRADO, []
     except json.JSONDecodeError:
@@ -165,3 +163,4 @@ def get_filial_proxima(bairro: str) -> Tuple[int, Union[int, None]]:
             return OPERACAO_REALIZADA_COM_SUCESSO, bairro_tuple[1]
     else:
         return BAIRRO_NAO_ENCONTRADO, None  
+
