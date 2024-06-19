@@ -15,8 +15,8 @@ import json
 # Para o resto, use: from . import modulo
 from .mensagens import *
 from . import cadastro
-import filial
-import aula
+from . import filial
+from . import filialturma
 
 # Variáveis globais de registro da sessão
 #Globais Aluno
