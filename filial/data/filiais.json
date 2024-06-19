@@ -1,12 +1,12 @@
 [
-    {
-        "id": 1,
-        "nome": "Filial Classe A",
-        "bairro": "Afonso Pena"
-    },
-    {
-        "id": 2,
-        "nome": "Filial Premium",
-        "bairro": "Laranjeiras"
-    }
+  {
+    "id": 1,
+    "nome": "Filial Classe A",
+    "bairro": "Afonso Pena"
+  },
+  {
+    "id": 2,
+    "nome": "Filial Premium",
+    "bairro": "Laranjeiras"
+  }
 ]
