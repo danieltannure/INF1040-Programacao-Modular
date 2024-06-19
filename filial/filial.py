@@ -105,7 +105,7 @@ def add_filial(nome: str, bairro: str) -> tuple[int, int]:
 
     return 0, novo_id
 
-def get_filials() -> tuple[int, list[dict]]:
+def get_filiais() -> tuple[int, list[dict]]:
     """
     Retorna uma lista de todas as filiais
     """
