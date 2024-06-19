@@ -6,7 +6,7 @@ __all__ = [
     "get_avaliacoes",
     "add_avaliacao",
     "del_avaliacao",
-    # "set_avaliacao",
+    "set_avaliacao",
 ]
 
 # Globais
@@ -187,10 +187,6 @@ def add_avaliacao(
         # Perguntas e Gabarito tem tamanhos diferentes
         return 56, None  # type: ignore
 
-    if perguntas == []:
-        # Avaliação não possui nenhuma questão
-        return 57, None  # type: ignore
-
     novo_id = _gera_novo_id()
     if novo_id == -1:
         # Erro ao gerar o ID
@@ -207,6 +203,33 @@ def add_avaliacao(
     _avaliacoes.append(nova_avaliacao)
 
     return 0, novo_id
+
+
+def set_avaliacao(
+    id_avaliacao: int, nome: str, tipo: int, gabarito: list[int], perguntas: list[str]
+) -> tuple[int, int]:
+    """
+    Atualiza uma avaliação
+    """
+
+    if not len(gabarito) == len(perguntas):
+        # Perguntas e Gabarito tem tamanhos diferentes
+        return 56, None  # type: ignore
+
+    if perguntas == []:
+        # Avaliação não possui nenhuma questão
+        return 57, None  # type: ignore
+
+    for avaliacao in _avaliacoes:
+        if avaliacao["id"] == id_turma:
+            avaliacao["nome"] = nome
+            avaliacao["tipo"] = nome
+            avaliacao["gabarito"] = gabarito
+            avaliacao["perguntas"] = perguntas
+            return 0, copy.deepcopy(turma)
+
+    # avaliação não encontrada
+    return 52, None
 
 
 def del_avaliacao(id_turma: int) -> tuple[int, None]:
