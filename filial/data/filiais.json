@@ -8,5 +8,10 @@
     "id": 2,
     "nome": "Filial Premium",
     "bairro": "Laranjeiras"
+  },
+  {
+    "id": 1,
+    "nome": "Lagoa",
+    "bairro": "Lagoa"
   }
 ]

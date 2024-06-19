@@ -20,6 +20,7 @@ from . import cadastro
 from . import filial
 from . import filialturma
 from . import avaliacao
+from . import criterio
 
 # Variáveis globais de registro da sessão
 # Globais Aluno
@@ -467,7 +468,10 @@ def show_tela_criterio_admin():
     menu_cursos.grid(row=1, column=1, padx=10, pady=10)
 
     # as avaliacoes devem ser puxadas do módulo avaliação
-    avaliacoes = ["(Selecione Uma Avaliação)", "AV1", "AV2", "AV3", "AV4", "AV5"]
+
+    erro = avaliacao.get_avaliacoes()
+
+    avaliacoes = ["(Selecione Uma Avaliação)"] + [av["nome"] for av in erro[1]]
     avaliacoes_var = tk.StringVar(root)
     avaliacoes_var.set(avaliacoes[0])  # Definir valo padrão como vazio
 
@@ -557,6 +561,10 @@ def send_novo_add_avaliacao_ao_criterio(nome, tipo, curso):
         # baseado na conclusão da ação, se o status for OK, retornamos voltamos a tela de inicio normal
         # caso não, chamaremos futuramente a mensagem de erro do módulo de Erro coerente com o numero de erro retornado
         # pega o id dessa nova avaliação e chama a send_add_avaliacao_ao_criterio(id_curso,id_avaliacao_nova)
+        erro = avaliacao.add_avaliacao(nome, tipo, [], [])
+        id_avaliacao_nova = erro[1]
+        send_add_avaliacao_ao_criterio(curso, id_avaliacao_nova)
+
         messagebox.showinfo(
             "Avaliação Incluida",
             f"Agora avaliação {nome}, faz parte do critério do curso {curso}.",
@@ -942,7 +950,10 @@ def show_media_avaliacao():
     label_media.grid(row=0, column=0, padx=10, pady=10)
 
     # tem q ser puxado do módulo avaliações
-    avaliacoes = ["(Selecione uma Avaliação)", "AV1", "AV2", "AV3", "AV4", "AV5"]
+
+    erro = avaliacao.get_avaliacoes()
+
+    avaliacoes = ["(Selecione Uma Avaliação)"] + [av["nome"] for av in erro[1]]
     avaliacoes_var = tk.StringVar(root)
     avaliacoes_var.set(avaliacoes[0])  # Definir valor padrão como vazio
 
@@ -1712,7 +1723,9 @@ def show_tela_avaliacoes_aluno(id_turma):
         # disso, descobrir a lista de avalicoes pelo modulo criterioaprovacao sendo:
         # avaliacoes = crieterioaprovacao.get_criterio(assunto.get_curso_by_turma(id_turma))
 
-        avaliacoes = ["(Selecione uma Avaliação)", "AV1", "AV2", "AV3", "AV4", "AV5"]
+        erro = avaliacao.get_avaliacoes()
+
+        avaliacoes = ["(Selecione Uma Avaliação)"] + [av["nome"] for av in erro[1]]
         avaliacoes_var = tk.StringVar(root)
         avaliacoes_var.set(avaliacoes[0])  # Definir valor padrão como vazio
 
@@ -2224,7 +2237,9 @@ def show_tela_montagem_professor(id_turma):
         # baseado na conclusão da ação, se o status for OK, retornamos voltamos a tela de inicio normal
         # caso não, chamaremos futuramente a mensagem de erro do módulo de Erro coerente com o numero de erro retornado
 
-        avaliacoes = ["(Selecione uma Avaliação)", "AV1", "AV2", "AV3", "AV4", "AV5"]
+        erro = avaliacao.get_avaliacoes()
+
+        avaliacoes = ["(Selecione Uma Avaliação)"] + [av["nome"] for av in erro[1]]
         avaliacoes_var = tk.StringVar(root)
         avaliacoes_var.set(avaliacoes[0])  # Definir valor padrão como vazio
 
