@@ -10,3 +10,6 @@
 [submodule "aula"]
 	path = aula
 	url = https://github.com/felipefortinif/aula/
+[submodule "turma"]
+	path = turma
+	url = https://github.com/bathwaterpizza/turma
